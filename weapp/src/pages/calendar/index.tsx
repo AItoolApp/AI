@@ -58,7 +58,7 @@ export default class CalendarPage extends Component<{}, State> {
 
     return (
       <View className={`app-page theme-${this.state.theme}`}>
-        <View className='page-title'>📅 日历</View>
+        <View className='page-title'>日历</View>
 
         <View className='cal-nav'>
           <View className='cal-nav-btn' onClick={() => this.prevMonth()}>◀</View>

@@ -101,7 +101,7 @@ export default class ManagePage extends Component<{}, State> {
 
     return (
       <View className={`app-page theme-${theme}`}>
-        <View className='page-title'>💎 管理</View>
+        <View className='page-title'>管理</View>
 
         <Button className='add-btn' onClick={() => this.openAdd()}>+ 添加新习惯</Button>
 
@@ -137,9 +137,15 @@ export default class ManagePage extends Component<{}, State> {
                 <View className='fg'>
                   <Label className='fg-label'>习惯名称</Label>
                   <Input className='fg-input' value={editName}
-                    placeholder='例如：晨跑30分钟' maxlength={30}
+                    placeholder='写个名字吧 ✏️' maxlength={30}
                     onInput={e => this.setState({ editName: e.detail.value })}
                   />
+                  {editName.trim() && (
+                    <View className='input-preview'>
+                      <Text className='preview-emoji'>{editEmoji}</Text>
+                      <Text className='preview-name'>{editName.trim()}</Text>
+                    </View>
+                  )}
                 </View>
                 <View className='fg'>
                   <Label className='fg-label'>选择图标</Label>

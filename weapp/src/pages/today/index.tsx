@@ -58,14 +58,15 @@ export default class TodayPage extends Component<{}, State> {
 
     return (
       <View className={`app-page theme-${theme}`}>
-        <View className='page-title'>✨ 今日打卡</View>
-        <View className='tag-badge'>{dateStr}</View>
-
-        {habits.length > 0 && (
-          <View className='day-summary'>
-            <Text className='summary-text'>已完成 {habits.filter(h => h.checkins && h.checkins[currentDate]).length}/{habits.length}</Text>
+        <View className='page-header-compact'>
+          <View className='page-title'>今日打卡</View>
+          <View className='header-meta'>
+            <View className='tag-badge'>{dateStr}</View>
+            {habits.length > 0 && (
+              <Text className='summary-badge'>✓ {habits.filter(h => h.checkins && h.checkins[currentDate]).length}/{habits.length}</Text>
+            )}
           </View>
-        )}
+        </View>
 
         {habits.length === 0 ? (
           <View className='empty-state'>

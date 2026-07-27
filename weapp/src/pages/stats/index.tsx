@@ -31,7 +31,7 @@ export default class StatsPage extends Component<{}, State> {
     if (stats.length === 0) {
       return (
         <View className={`app-page theme-${this.state.theme}`}>
-          <View className='page-title'>📈 统计</View>
+          <View className='page-title'>统计</View>
           <View className='empty-state'>
             <Text className='ei'>📊</Text>
             <Text>还没有数据，开始打卡吧！</Text>
@@ -42,7 +42,7 @@ export default class StatsPage extends Component<{}, State> {
 
     return (
       <View className={`app-page theme-${this.state.theme}`}>
-        <View className='page-title'>📈 统计</View>
+        <View className='page-title'>统计</View>
 
         <View className='stats-grid'>
           <View className='stat-card'>

@@ -71,6 +71,37 @@
 .m-btn.edit { background: var(--acc-light); color: var(--acc-txt); }
 .m-btn.del { background: var(--danger-light); color: var(--danger); }
 
+/* ─── Form Input ─── */
+.fg { margin-bottom: 28px; }
+.fg-label {
+  display: block;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--txt2);
+  margin-bottom: 10px;
+}
+.fg-input {
+  width: 100%;
+  padding: 24px 28px;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  font-size: 32px;
+  background: var(--bg);
+  color: var(--txt);
+  box-sizing: border-box;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.fg-input:focus {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 4px var(--acc-light);
+  background: var(--card);
+  outline: none;
+}
+.fg-input::placeholder {
+  color: var(--txt3);
+  font-weight: 400;
+}
+
 /* ─── Modal ─── */
 .modal-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -98,29 +129,29 @@
   display: flex; align-items: center; gap: 8px;
 }
 
-.fg { margin-bottom: 24px; }
-.fg-label {
-  display: block;
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--txt2);
-  margin-bottom: 8px;
+
+
+/* ─── Input Live Preview ─── */
+.input-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  margin-top: 12px;
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--sh);
 }
-.fg-input {
-  width: 100%;
-  padding: 20px 24px;
-  border: 2px solid var(--border);
-  border-radius: 14px;
+.input-preview .preview-emoji {
+  font-size: 36px;
+  width: 44px;
+  text-align: center;
+}
+.input-preview .preview-name {
   font-size: 28px;
-  background: var(--bg);
+  font-weight: 600;
   color: var(--txt);
-  box-sizing: border-box;
-  transition: border-color .2s ease, box-shadow .2s ease;
-}
-.fg-input:focus {
-  border-color: var(--acc);
-  box-shadow: 0 0 0 3px var(--acc-light);
-  outline: none;
 }
 
 .emoji-grid { display: flex; flex-wrap: wrap; gap: 8px; }

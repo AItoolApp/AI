@@ -1,23 +1,24 @@
 import { Component } from 'react'
 import { View, Text } from '@tarojs/components'
-import { loadData } from '../../utils/storage'
+import { loadData, loadTheme } from '../../utils/storage'
 import { calcStats } from '../../utils/stats'
 import { HabitStats } from '../../utils/constants'
 import './index.scss'
 
 interface State {
   stats: HabitStats[]
+  theme: string
 }
 
 export default class StatsPage extends Component<{}, State> {
-  state: State = { stats: [] }
+  state: State = { stats: [], theme: 'latte' }
 
   componentDidMount() { this.refresh() }
   componentDidShow() { this.refresh() }
 
   refresh() {
     const data = loadData()
-    this.setState({ stats: calcStats(data.habits) })
+    this.setState({ stats: calcStats(data.habits), theme: loadTheme() })
   }
 
   render() {
@@ -29,7 +30,7 @@ export default class StatsPage extends Component<{}, State> {
 
     if (stats.length === 0) {
       return (
-        <View className='app-page'>
+        <View className={`app-page theme-${this.state.theme}`}>
           <View className='page-title'>📈 统计</View>
           <View className='empty-state'>
             <Text className='ei'>📊</Text>
@@ -40,7 +41,7 @@ export default class StatsPage extends Component<{}, State> {
     }
 
     return (
-      <View className='app-page'>
+      <View className={`app-page theme-${this.state.theme}`}>
         <View className='page-title'>📈 统计</View>
 
         <View className='stats-grid'>

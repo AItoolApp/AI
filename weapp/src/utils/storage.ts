@@ -42,3 +42,17 @@ export function firstDayOfMonth(year: number, month: number): number {
   return new Date(year, month - 1, 1).getDay()
 }
 /* End of File */
+
+/** Load saved theme key from storage */
+export function loadTheme(): string {
+  try {
+    const raw = Taro.getStorageSync(STORAGE_KEY)
+    if (raw) {
+      const data = JSON.parse(raw) as AppData
+      return data.theme || DEFAULT_THEME
+    }
+  } catch (e) {
+    console.error('loadTheme error:', e)
+  }
+  return DEFAULT_THEME
+}

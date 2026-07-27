@@ -1,22 +1,25 @@
 import { Component } from 'react'
 import { View, Text, Button, ScrollView } from '@tarojs/components'
 import { Habit } from '../../utils/constants'
-import { loadData, saveData, todayStr } from '../../utils/storage'
+import { getStreak } from '../../utils/stats'
+import { loadData, saveData, todayStr, loadTheme } from '../../utils/storage'
 import './index.scss'
 
 interface State {
   habits: Habit[]
   currentDate: string
+  theme: string
 }
 
 export default class TodayPage extends Component<{}, State> {
   state: State = {
     habits: [],
-    currentDate: todayStr()
+    currentDate: todayStr(),
+    theme: 'latte'
   }
 
-  componentDidMount() { this.loadHabits() }
-  componentDidShow() { this.loadHabits() }
+  componentDidMount() { this.loadHabits(); this.loadTheme() }
+  componentDidShow() { this.loadHabits(); this.loadTheme() }
 
   loadHabits() {
     const data = loadData()
@@ -43,16 +46,26 @@ export default class TodayPage extends Component<{}, State> {
     this.setState({ habits: [...habits] })
   }
 
+  loadTheme() {
+    this.setState({ theme: loadTheme() })
+  }
+
   render() {
-    const { habits, currentDate } = this.state
+    const { habits, currentDate, theme } = this.state
     const now = new Date()
     const weekday = ['日','一','二','三','四','五','六'][now.getDay()]
     const dateStr = `${now.getMonth()+1}月${now.getDate()}日 周${weekday}`
 
     return (
-      <View className='app-page'>
+      <View className={`app-page theme-${theme}`}>
         <View className='page-title'>✨ 今日打卡</View>
         <View className='tag-badge'>{dateStr}</View>
+
+        {habits.length > 0 && (
+          <View className='day-summary'>
+            <Text className='summary-text'>已完成 {habits.filter(h => h.checkins && h.checkins[currentDate]).length}/{habits.length}</Text>
+          </View>
+        )}
 
         {habits.length === 0 ? (
           <View className='empty-state'>
@@ -79,6 +92,7 @@ export default class TodayPage extends Component<{}, State> {
                       <Text className={`meta-tag ${checked ? 'done' : 'pend'}`}>
                         {checked ? '✓ 已完成' : '⏳ 待完成'}
                       </Text>
+                      <Text className='streak-badge'>🔥 {getStreak(h)}天</Text>
                     </View>
                   </View>
                   <View

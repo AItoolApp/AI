@@ -1,6 +1,6 @@
 import { Component } from 'react'
 import { View, Text } from '@tarojs/components'
-import { loadData } from '../../utils/storage'
+import { loadData, loadTheme } from '../../utils/storage'
 import { getCheckinCounts } from '../../utils/stats'
 import { WEEKDAYS } from '../../utils/constants'
 import './index.scss'
@@ -9,13 +9,15 @@ interface State {
   year: number
   month: number
   checkinMap: Record<string, number>
+  theme: string
 }
 
 export default class CalendarPage extends Component<{}, State> {
   state: State = {
     year: new Date().getFullYear(),
     month: new Date().getMonth() + 1,
-    checkinMap: {}
+    checkinMap: {},
+    theme: 'latte'
   }
 
   componentDidMount() { this.refresh() }
@@ -23,7 +25,7 @@ export default class CalendarPage extends Component<{}, State> {
 
   refresh() {
     const data = loadData()
-    this.setState({ checkinMap: getCheckinCounts(data.habits) })
+    this.setState({ checkinMap: getCheckinCounts(data.habits), theme: loadTheme() })
   }
 
   prevMonth() {
@@ -55,7 +57,7 @@ export default class CalendarPage extends Component<{}, State> {
     }
 
     return (
-      <View className='app-page'>
+      <View className={`app-page theme-${this.state.theme}`}>
         <View className='page-title'>📅 日历</View>
 
         <View className='cal-nav'>
@@ -71,7 +73,7 @@ export default class CalendarPage extends Component<{}, State> {
             return (
               <View key={d.dateStr} className={`cal-day ${d.isToday ? 'today' : ''}`}>
                 <Text>{d.day}</Text>
-                {d.count > 0 && <View className='dot'></View>}
+                {d.count > 0 && <View className='dot'><Text className='dot-count'>{d.count > 1 ? d.count : ''}</Text></View>}
               </View>
             )
           })}

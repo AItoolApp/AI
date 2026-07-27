@@ -44,4 +44,4 @@ export default defineAppConfig({
     ]
   }
 })
-function defineAppConfig(config) { return config }
+ function defineAppConfig(config: Record<string, unknown>) { return config }

@@ -4,4 +4,32 @@
   gap: 12px;
   max-height: calc(100vh - 360px);
 }
-/* uses global .habit-row, .check-btn, .meta-tag styles from app.scss */
+
+.day-summary {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.summary-text {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--txt2);
+  padding: 8px 24px;
+  background: var(--card);
+  border-radius: 40px;
+  border: 1px solid var(--border);
+  display: inline-block;
+  box-shadow: var(--sh);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.streak-badge {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--acc);
+  margin-left: 10px;
+  padding: 1px 8px;
+  background: var(--acc-light);
+  border-radius: 10px;
+}

@@ -5,37 +5,40 @@
   margin-bottom: 24px;
   background: var(--card);
   border-radius: 20px;
-  padding: 16px 20px;
+  padding: 14px 20px;
   border: 1px solid var(--border);
   box-shadow: var(--sh);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .cal-nav-btn {
   width: 56px; height: 56px;
   display: flex; align-items: center; justify-content: center;
   border-radius: 14px;
-  background: var(--bg);
   font-size: 28px;
   color: var(--txt2);
   transition: all .2s ease;
 }
-.cal-nav-btn:active { background: var(--acc-light); transform: scale(.9); }
-.cal-title { font-size: 32px; font-weight: 700; }
+.cal-nav-btn:active { background: var(--acc-light); transform: scale(.88); color: var(--acc-txt); }
+.cal-title { font-size: 30px; font-weight: 700; color: var(--txt); }
 
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 3px;
   background: var(--card);
   border-radius: 20px;
-  padding: 8px;
+  padding: 10px 8px;
   border: 1px solid var(--border);
   box-shadow: var(--sh);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .cal-hdr {
   text-align: center;
   font-size: 22px;
   color: var(--txt3);
-  padding: 10px 0;
+  padding: 8px 0 6px;
   font-weight: 600;
 }
 .cal-day {
@@ -48,8 +51,10 @@
   color: var(--txt2);
   position: relative;
   min-height: 64px;
+  transition: all .2s ease;
 }
-.cal-day.other { color: var(--txt3); opacity: .35; }
+.cal-day:active { transform: scale(.92); }
+.cal-day.other { color: var(--txt3); opacity: .3; }
 .cal-day.today {
   background: var(--acc-light);
   font-weight: 700;
@@ -57,9 +62,23 @@
   box-shadow: 0 0 0 2px var(--acc);
 }
 .cal-day .dot {
-  width: 7px; height: 7px;
+  width: 18px; height: 18px;
   border-radius: 50%;
   background: var(--acc);
-  margin-top: 3px;
-  box-shadow: 0 0 5px var(--acc);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+.cal-day .dot-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .6; }
 }

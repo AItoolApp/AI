@@ -1,26 +1,30 @@
 import { Component } from 'react'
 import { View, Text, Button, Input, ScrollView, Label } from '@tarojs/components'
-import { loadData, saveData } from '../../utils/storage'
+import { loadData, saveData, loadTheme } from '../../utils/storage'
 import { EMOJIS, COLORS, THEMES, Habit } from '../../utils/constants'
 import './index.scss'
 
 interface State {
   habits: Habit[]
   showModal: boolean
+  showTheme: boolean
   editingId: number | null
   editName: string
   editEmoji: string
   editColor: string
+  theme: string
 }
 
 export default class ManagePage extends Component<{}, State> {
   state: State = {
     habits: [],
     showModal: false,
+    showTheme: false,
     editingId: null,
     editName: '',
     editEmoji: EMOJIS[0],
-    editColor: COLORS[0]
+    editColor: COLORS[0],
+    theme: 'latte'
   }
 
   componentDidMount() { this.refresh() }
@@ -28,7 +32,7 @@ export default class ManagePage extends Component<{}, State> {
 
   refresh() {
     const data = loadData()
-    this.setState({ habits: data.habits })
+    this.setState({ habits: data.habits, theme: loadTheme() })
   }
 
   openAdd() {
@@ -85,14 +89,25 @@ export default class ManagePage extends Component<{}, State> {
     })
   }
 
+  selTheme(k: string) {
+    const data = loadData()
+    data.theme = k
+    saveData(data)
+    this.setState({ theme: k, showTheme: false })
+  }
+
   render() {
-    const { habits, showModal, editName, editEmoji, editColor, editingId } = this.state
+    const { habits, showModal, showTheme, editName, editEmoji, editColor, editingId, theme } = this.state
 
     return (
-      <View className='app-page'>
+      <View className={`app-page theme-${theme}`}>
         <View className='page-title'>💎 管理</View>
 
         <Button className='add-btn' onClick={() => this.openAdd()}>+ 添加新习惯</Button>
+
+        <Button className='theme-btn' onClick={() => this.setState({ showTheme: true })}>
+          🎨 切换主题
+        </Button>
 
         {habits.length === 0 ? (
           <View className='empty-state'>
@@ -157,6 +172,28 @@ export default class ManagePage extends Component<{}, State> {
             </View>
           </View>
         )}
+      {showTheme && (
+        <View className='modal-overlay' onClick={() => this.setState({ showTheme: false })}>
+          <View className='modal-box' onClick={e => e.stopPropagation()}>
+            <View className='modal-title'>🎨 切换主题</View>
+            <View className='theme-grid'>
+              {THEMES.map(t => (
+                <View
+                  key={t.key}
+                  className={`theme-opt ${t.key === theme ? 'active' : ''}`}
+                  onClick={() => this.selTheme(t.key)}
+                >
+                  <View className='theme-preview' style={`background: ${t.color}; ${t.key === 'midnight' ? 'border-color: #444470;' : ''}`}></View>
+                  <Text className='theme-name'>{t.name}</Text>
+                </View>
+              ))}
+            </View>
+            <View className='modal-actions'>
+              <Button className='btn-action cancel' onClick={() => this.setState({ showTheme: false })}>关闭</Button>
+            </View>
+          </View>
+        </View>
+      )}
       </View>
     )
   }

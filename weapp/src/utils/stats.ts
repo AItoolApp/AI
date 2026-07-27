@@ -58,6 +58,22 @@ export function calcStats(habits: Habit[]): HabitStats[] {
   })
 }
 
+
+/** Get current consecutive checkin streak for a single habit */
+export function getStreak(h: Habit): number {
+  if (!h.checkins) return 0
+  let streak = 0
+  const dd = new Date()
+  while (true) {
+    const ds = formatDate(dd.getFullYear(), dd.getMonth() + 1, dd.getDate())
+    if (h.checkins[ds]) {
+      streak++
+      dd.setDate(dd.getDate() - 1)
+    } else break
+  }
+  return streak
+}
+
 export function getCheckinCounts(habits: Habit[]): Record<string, number> {
   const map: Record<string, number> = {}
   habits.forEach(h => {

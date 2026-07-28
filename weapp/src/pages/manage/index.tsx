@@ -137,9 +137,12 @@ export default class ManagePage extends Component<{}, State> {
                 <View className='fg'>
                   <Label className='fg-label'>习惯名称</Label>
                   <Input className='fg-input' value={editName}
-                    placeholder='写个名字吧 ✏️' maxlength={30}
+                    placeholder='写个名字吧 ✏️' maxlength={20}
                     onInput={e => this.setState({ editName: e.detail.value })}
                   />
+                  <View className='input-meta'>
+                    <Text className='char-count'>{editName.length}/20</Text>
+                  </View>
                   {editName.trim() && (
                     <View className='input-preview'>
                       <Text className='preview-emoji'>{editEmoji}</Text>

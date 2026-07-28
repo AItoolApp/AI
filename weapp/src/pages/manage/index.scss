@@ -154,6 +154,18 @@
   color: var(--txt);
 }
 
+/* ─── Input Meta ─── */
+.input-meta {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+.char-count {
+  font-size: 20px;
+  color: var(--txt3);
+  font-weight: 500;
+}
+
 .emoji-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .epi {
   width: 64px; height: 64px;

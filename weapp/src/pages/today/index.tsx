@@ -98,7 +98,7 @@ export default class TodayPage extends Component<{}, State> {
                   </View>
                   <View
                     className={`check-btn ${checked ? 'checked' : ''}`}
-                    onClick={() => this.toggleCheckin(h.id)}
+                    onTouchEnd={(e) => { e.stopPropagation(); this.toggleCheckin(h.id) }}
                   >
                     {checked ? '✓' : ''}
                   </View>

@@ -17,7 +17,7 @@ const config = {
     postcss: {
       pxtransform: { enable: true, config: {} },
       url: { enable: true, config: { limit: 1024 } },
-      cssModules: { enable: false, config: { namingPattern: 'module', generateScopedName: '[name]__[local]___[hash:base64:5]' } }
+      cssModules: { enable: false, config: {} }
     }
   },
   h5: {
@@ -25,7 +25,7 @@ const config = {
     staticDirectory: 'static',
     postcss: {
       autoprefixer: { enable: true, config: {} },
-      cssModules: { enable: false, config: { namingPattern: 'module', generateScopedName: '[name]__[local]___[hash:base64:5]' } }
+      cssModules: { enable: false, config: {} }
     }
   }
 }

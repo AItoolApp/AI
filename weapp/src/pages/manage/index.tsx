@@ -172,7 +172,7 @@ export default class ManagePage extends Component<{}, State> {
                 <View className='fg'>
                   <Label className='fg-label'>你的想法</Label>
                   <Textarea className='fg-input textarea-input' value={this.state.feedbackText}
-                    placeholder='说说你的建议、遇到的bug、想要的功能...' maxlength={200}
+                    placeholder='说说你的建议或遇到的bug' maxlength={200}
                     onInput={e => this.setState({ feedbackText: e.detail.value })}
                   />
                   <View className='input-meta'>
@@ -181,7 +181,7 @@ export default class ManagePage extends Component<{}, State> {
                 </View>
                 <View className='fg'>
                   <Label className='fg-label'>联系方式（选填）</Label>
-                  <Input className='fg-input' value={this.state.feedbackContact}
+                  <Textarea className='fg-input single-line-input' value={this.state.feedbackContact}
                     placeholder='微信/QQ/邮箱，方便跟进' maxlength={50}
                     onInput={e => this.setState({ feedbackContact: e.detail.value })}
                   />
@@ -202,7 +202,7 @@ export default class ManagePage extends Component<{}, State> {
               <View className='modal-body'>
                 <View className='fg'>
                   <Label className='fg-label'>习惯名称</Label>
-                  <Input className='fg-input' value={editName}
+                  <Textarea className='fg-input single-line-input' value={editName}
                     placeholder='写个名字吧 ✏️' maxlength={20}
                     onInput={e => this.setState({ editName: e.detail.value })}
                   />

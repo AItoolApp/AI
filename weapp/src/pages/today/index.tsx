@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import Taro from '@tarojs/taro'
 import { View, Text, Button, ScrollView } from '@tarojs/components'
 import { Habit } from '../../utils/constants'
 import { getStreak } from '../../utils/stats'
@@ -18,7 +19,7 @@ export default class TodayPage extends Component<{}, State> {
     theme: 'latte'
   }
 
-  componentDidMount() { this.loadHabits(); this.loadTheme() }
+  componentDidMount() { Taro.showShareMenu({ withShareTicket: true }); this.loadHabits(); this.loadTheme() }
   componentDidShow() { this.loadHabits(); this.loadTheme() }
 
   loadHabits() {

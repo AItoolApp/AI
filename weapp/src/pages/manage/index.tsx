@@ -1,5 +1,6 @@
 import { Component } from 'react'
-import { View, Text, Button, Input, ScrollView, Label } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import { View, Text, Button, Input, Textarea, ScrollView, Label } from '@tarojs/components'
 import { loadData, saveData, loadTheme } from '../../utils/storage'
 import { EMOJIS, COLORS, THEMES, Habit } from '../../utils/constants'
 import './index.scss'
@@ -8,6 +9,9 @@ interface State {
   habits: Habit[]
   showModal: boolean
   showTheme: boolean
+  showFeedback: boolean
+  feedbackText: string
+  feedbackContact: string
   editingId: number | null
   editName: string
   editEmoji: string
@@ -20,6 +24,9 @@ export default class ManagePage extends Component<{}, State> {
     habits: [],
     showModal: false,
     showTheme: false,
+    showFeedback: false,
+    feedbackText: '',
+    feedbackContact: '',
     editingId: null,
     editName: '',
     editEmoji: EMOJIS[0],
@@ -27,7 +34,7 @@ export default class ManagePage extends Component<{}, State> {
     theme: 'latte'
   }
 
-  componentDidMount() { this.refresh() }
+  componentDidMount() { Taro.showShareMenu({ withShareTicket: true }); this.refresh() }
   componentDidShow() { this.refresh() }
 
   refresh() {
@@ -89,6 +96,25 @@ export default class ManagePage extends Component<{}, State> {
     })
   }
 
+  submitFeedback() {
+    const { feedbackText, feedbackContact, habits } = this.state
+    if (!feedbackText.trim()) {
+      wx.showToast({ title: '写点什么吧～', icon: 'none' })
+      return
+    }
+    // Store feedback locally for now
+    const feedbacks = Taro.getStorageSync('habit_feedbacks') || '[]'
+    const list = JSON.parse(feedbacks)
+    list.push({
+      text: feedbackText.trim(),
+      contact: feedbackContact.trim(),
+      time: new Date().toISOString()
+    })
+    Taro.setStorageSync('habit_feedbacks', JSON.stringify(list))
+    wx.showToast({ title: '感谢反馈 🎉', icon: 'none', duration: 2000 })
+    this.setState({ showFeedback: false, feedbackText: '', feedbackContact: '' })
+  }
+
   selTheme(k: string) {
     const data = loadData()
     data.theme = k
@@ -109,6 +135,10 @@ export default class ManagePage extends Component<{}, State> {
           🎨 切换主题
         </Button>
 
+        <Button className='theme-btn' onClick={() => this.setState({ showFeedback: true })}>
+          💬 反馈建议
+        </Button>
+
         {habits.length === 0 ? (
           <View className='empty-state'>
             <Text className='ei'>📋</Text>
@@ -127,6 +157,42 @@ export default class ManagePage extends Component<{}, State> {
               </View>
             ))}
           </ScrollView>
+        )}
+
+        <View className='about-section'>
+          <Text className='about-version'>习惯打卡 v1.0</Text>
+          <Text className='about-line'>每天打卡，见证改变</Text>
+        </View>
+
+        {this.state.showFeedback && (
+          <View className='modal-overlay' onClick={() => this.setState({ showFeedback: false })}>
+            <View className='modal-box' onClick={e => e.stopPropagation()}>
+              <View className='modal-title'>💬 反馈建议</View>
+              <View className='modal-body'>
+                <View className='fg'>
+                  <Label className='fg-label'>你的想法</Label>
+                  <Textarea className='fg-input textarea-input' value={this.state.feedbackText}
+                    placeholder='说说你的建议、遇到的bug、想要的功能...' maxlength={200}
+                    onInput={e => this.setState({ feedbackText: e.detail.value })}
+                  />
+                  <View className='input-meta'>
+                    <Text className='char-count'>{this.state.feedbackText.length}/200</Text>
+                  </View>
+                </View>
+                <View className='fg'>
+                  <Label className='fg-label'>联系方式（选填）</Label>
+                  <Input className='fg-input' value={this.state.feedbackContact}
+                    placeholder='微信/QQ/邮箱，方便跟进' maxlength={50}
+                    onInput={e => this.setState({ feedbackContact: e.detail.value })}
+                  />
+                </View>
+                <View className='modal-actions'>
+                  <Button className='btn-action cancel' onClick={() => this.setState({ showFeedback: false })}>取消</Button>
+                  <Button className='btn-action confirm' onClick={() => this.submitFeedback()}>提交</Button>
+                </View>
+              </View>
+            </View>
+          </View>
         )}
 
         {showModal && (

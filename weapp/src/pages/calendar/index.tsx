@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import Taro from '@tarojs/taro'
 import { View, Text, ScrollView } from '@tarojs/components'
 import { loadData, loadTheme } from '../../utils/storage'
 import { getCheckinCounts, getStreak } from '../../utils/stats'
@@ -22,7 +23,7 @@ export default class CalendarPage extends Component<{}, State> {
     theme: 'latte'
   }
 
-  componentDidMount() { this.refresh() }
+  componentDidMount() { Taro.showShareMenu({ withShareTicket: true }); this.refresh() }
   componentDidShow() { this.refresh() }
 
   refresh() {

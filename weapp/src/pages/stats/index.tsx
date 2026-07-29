@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import Taro from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
 import { loadData, loadTheme } from '../../utils/storage'
 import { calcStats } from '../../utils/stats'
@@ -13,7 +14,7 @@ interface State {
 export default class StatsPage extends Component<{}, State> {
   state: State = { stats: [], theme: 'latte' }
 
-  componentDidMount() { this.refresh() }
+  componentDidMount() { Taro.showShareMenu({ withShareTicket: true }); this.refresh() }
   componentDidShow() { this.refresh() }
 
   refresh() {

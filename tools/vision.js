@@ -17,8 +17,22 @@ const https = require("https");
 const http = require("http");
 
 // 尝试加载 .env（先找当前目录，再找脚本所在目录）
-try { require("dotenv").config(); } catch {}
-try { require("dotenv").config({ path: path.resolve(__dirname, ".env") }); } catch {}
+function loadEnv(dir) {
+  try {
+    const envFile = path.join(dir, ".env");
+    if (fs.existsSync(envFile)) {
+      const lines = fs.readFileSync(envFile, "utf8").split("\n");
+      for (const line of lines) {
+        const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
+        if (m && !process.env[m[1]]) {
+          process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
+        }
+      }
+    }
+  } catch (e) {}
+}
+loadEnv(__dirname);
+loadEnv(process.cwd());
 
 const BASE_URL = process.env.DASHSCOPE_BASE_URL || "https://dashscope.aliyuncs.com/compatible-mode/v1";
 const API_KEY = process.env.DASHSCOPE_API_KEY || "sk-xxx";
@@ -48,8 +62,17 @@ function resolveImageUrl(source, isUrl) {
   if (!fs.existsSync(resolved)) throw new Error(`文件不存在: ${resolved}`);
   const ext = path.extname(resolved).toLowerCase().replace(".", "");
   const mimeMap = { jpg: "jpeg", jpeg: "jpeg", png: "png", gif: "gif", webp: "webp", bmp: "bmp" };
-  const data = fs.readFileSync(resolved);
-  return `data:image/${mimeMap[ext] || "jpeg"};base64,${data.toString("base64")}`;
+  
+  // Compress large images for faster API calls
+  try {
+    const sharp = require("sharp");
+    const data = sharp(resolved).resize(512, 512, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 80 }).toBufferSync();
+    return `data:image/jpeg;base64,${data.toString("base64")}`;
+  } catch (e) {
+    // No sharp available - use raw file (slower but works)
+    const data = fs.readFileSync(resolved);
+    return `data:image/${mimeMap[ext] || "jpeg"};base64,${data.toString("base64")}`;
+  }
 }
 
 function request(payload) {
@@ -102,7 +125,7 @@ async function main() {
         { type: "text", text: prompt },
       ]}],
       stream: false,
-      max_tokens: 1024,
+      max_tokens: 512,
     });
     console.log(result);
   } catch (err) {

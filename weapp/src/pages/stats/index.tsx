@@ -4,6 +4,7 @@ import { View, Text } from '@tarojs/components'
 import { loadData, loadTheme } from '../../utils/storage'
 import { calcStats } from '../../utils/stats'
 import { HabitStats } from '../../utils/constants'
+import HabitIcon from '../../components/HabitIcon'
 import './index.scss'
 
 interface State {
@@ -67,7 +68,7 @@ export default class StatsPage extends Component<{}, State> {
         {stats.map(s => (
           <View key={s.id} className='stat-item'>
             <View className='stat-hdr'>
-              <Text className='se'>{s.emoji}</Text>
+              <HabitIcon emoji={s.emoji} className='se' imageClassName='se-img' />
               <Text className='sn'>{s.name}</Text>
             </View>
             <View className='stat-row'>

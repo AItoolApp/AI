@@ -1,8 +1,9 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
-import { View, Text, Button, Input, Textarea, ScrollView, Label } from '@tarojs/components'
+import { View, Text, Button, Input, Textarea, ScrollView, Label, Image } from '@tarojs/components'
 import { loadData, saveData, loadTheme } from '../../utils/storage'
-import { EMOJIS, COLORS, THEMES, Habit } from '../../utils/constants'
+import { EMOJIS, COLORS, THEMES, Habit, CUSTOM_ICON_KEYS, ICON_MAP } from '../../utils/constants'
+import HabitIcon from '../../components/HabitIcon'
 import './index.scss'
 
 interface State {
@@ -148,7 +149,7 @@ export default class ManagePage extends Component<{}, State> {
           <ScrollView scrollY className='manage-list'>
             {habits.map(h => (
               <View key={h.id} className='m-item'>
-                <Text className='mi'>{h.emoji}</Text>
+                <HabitIcon emoji={h.emoji} className='mi' imageClassName='mi-img' />
                 <Text className='mn'>{h.name}</Text>
                 <View className='ma'>
                   <Button className='m-btn edit' onClick={() => this.openEdit(h)}>编辑</Button>
@@ -211,7 +212,11 @@ export default class ManagePage extends Component<{}, State> {
                   </View>
                   {editName.trim() && (
                     <View className='input-preview'>
-                      <Text className='preview-emoji'>{editEmoji}</Text>
+                      {editEmoji.startsWith('icon:') ? (
+                        <Image className='preview-emoji-img' src={ICON_MAP[editEmoji.slice(5)]} mode='aspectFit' />
+                      ) : (
+                        <Text className='preview-emoji'>{editEmoji}</Text>
+                      )}
                       <Text className='preview-name'>{editName.trim()}</Text>
                     </View>
                   )}
@@ -219,6 +224,15 @@ export default class ManagePage extends Component<{}, State> {
                 <View className='fg'>
                   <Label className='fg-label'>选择图标</Label>
                   <View className='emoji-grid'>
+                    {CUSTOM_ICON_KEYS.map(k => {
+                      const val = `icon:${k}`
+                      return (
+                        <View key={val}
+                          className={`epi icon-epi ${val === editEmoji ? 'sel' : ''}`}
+                          onClick={() => this.setState({ editEmoji: val })}
+                        ><Image className='epi-img' src={ICON_MAP[k]} mode='aspectFit' /></View>
+                      )
+                    })}
                     {EMOJIS.map(e => (
                       <View key={e}
                         className={`epi ${e === editEmoji ? 'sel' : ''}`}

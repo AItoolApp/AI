@@ -4,6 +4,7 @@ import { View, Text, ScrollView } from '@tarojs/components'
 import { loadData, loadTheme } from '../../utils/storage'
 import { getCheckinCounts, getStreak } from '../../utils/stats'
 import { WEEKDAYS, Habit } from '../../utils/constants'
+import HabitIcon from '../../components/HabitIcon'
 import './index.scss'
 
 interface State {
@@ -115,7 +116,7 @@ export default class CalendarPage extends Component<{}, State> {
                       <Text className='cal-today-title'>今日已完成</Text>
                       {todayDone.map(x => (
                         <View key={x.id} className='cal-habit-mini'>
-                          <Text className='cal-habit-emoji'>{x.emoji}</Text>
+                          <HabitIcon emoji={x.emoji} className='cal-habit-emoji' imageClassName='cal-habit-emoji-img' />
                           <Text className='cal-habit-name'>{x.name}</Text>
                         </View>
                       ))}

@@ -196,3 +196,17 @@
 /* ─── Textarea ─── */
 .single-line-input { min-height: auto; height: 98px; overflow: hidden; }
 .textarea-input { min-height: 160px; text-align: left; vertical-align: top; line-height: 1.5; }
+/* ─── Custom Icon Picker ─── */
+.epi-img {
+  width: 56px;
+  height: 56px;
+  display: block;
+}
+.preview-emoji-img {
+  width: 48px;
+  height: 48px;
+}
+.mi-img {
+  width: 48px;
+  height: 48px;
+}

@@ -2,6 +2,7 @@ import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, Button, ScrollView } from '@tarojs/components'
 import { Habit } from '../../utils/constants'
+import HabitIcon from '../../components/HabitIcon'
 import { getStreak } from '../../utils/stats'
 import { loadData, saveData, todayStr, loadTheme } from '../../utils/storage'
 import './index.scss'
@@ -87,7 +88,7 @@ export default class TodayPage extends Component<{}, State> {
                   className='habit-row'
                   style={`--c-acc: ${h.color};`}
                 >
-                  <Text className='emoji'>{h.emoji}</Text>
+                  <HabitIcon emoji={h.emoji} className='emoji' imageClassName='emoji-img' />
                   <View className='info'>
                     <Text className='name'>{h.name}</Text>
                     <View className='meta'>

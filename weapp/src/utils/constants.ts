@@ -1,10 +1,34 @@
 // 习惯打卡 - 常量定义
 
 export const EMOJIS = [
-  '😊','🎧','⭐','☕','🎯','💪','🏃','🎨',
-  '🌱','🍳','📝','🎬','🧘','😺','🫶','🎵',
-  '🎮','📖','🚴','✌️'
+  '🫶','🎵','📖','🚴','✌️'
 ]
+
+export const CUSTOM_ICON_KEYS = [
+  'smile', 'cat', 'star', 'headphone', 'coffee', 'target', 'muscle',
+  'running', 'art', 'plant', 'cooking', 'writing', 'movie', 'meditation', 'gaming'
+]
+
+import smile from '../assets/icons/smile.png'
+import cat from '../assets/icons/cat.png'
+import star from '../assets/icons/star.png'
+import headphone from '../assets/icons/headphone.png'
+import coffee from '../assets/icons/coffee.png'
+import target from '../assets/icons/target.png'
+import muscle from '../assets/icons/muscle.png'
+import running from '../assets/icons/running.png'
+import art from '../assets/icons/art.png'
+import plant from '../assets/icons/plant.png'
+import cooking from '../assets/icons/cooking.png'
+import writing from '../assets/icons/writing.png'
+import movie from '../assets/icons/movie.png'
+import meditation from '../assets/icons/meditation.png'
+import gaming from '../assets/icons/gaming.png'
+
+export const ICON_MAP: Record<string, string> = {
+  smile, cat, star, headphone, coffee, target, muscle,
+  running, art, plant, cooking, writing, movie, meditation, gaming
+}
 
 export const COLORS = [
   '#ff6b6b','#00d2d3','#a29bfe','#feca57','#00b894',

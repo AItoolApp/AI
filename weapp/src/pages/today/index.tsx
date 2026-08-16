@@ -4,7 +4,8 @@ import { View, Text, Button, ScrollView } from '@tarojs/components'
 import { Habit } from '../../utils/constants'
 import HabitIcon from '../../components/HabitIcon'
 import { getStreak } from '../../utils/stats'
-import { loadData, saveData, todayStr, loadTheme } from '../../utils/storage'
+import { loadData, saveHabitCheckins, todayStr, loadTheme } from '../../utils/storage'
+import { getNavBarHeight } from '../../utils/safeArea'
 import './index.scss'
 
 interface State {
@@ -34,18 +35,26 @@ export default class TodayPage extends Component<{}, State> {
     if (!h) return
 
     const td = todayStr()
-    if (!h.checkins) h.checkins = {}
-
-    if (h.checkins[td]) {
-      delete h.checkins[td]
-      wx.showToast({ title: '已取消', icon: 'none', duration: 1200 })
+    const prev = h.checkins || {}
+    // 不可变更新：不直接 mutate h.checkins（P0-2）
+    const next: Record<string, boolean> = { ...prev }
+    const wasChecked = !!prev[td]
+    if (wasChecked) {
+      delete next[td]
     } else {
-      h.checkins[td] = true
-      wx.showToast({ title: '打卡成功 🎉', icon: 'none', duration: 1200 })
+      next[td] = true
     }
 
-    saveData({ habits, theme: loadData().theme })
-    this.setState({ habits: [...habits] })
+    // 只写当前习惯的独立 key，不重写整份数据（P0-1）
+    const ok = saveHabitCheckins(id, next)
+    if (!ok) {
+      wx.showToast({ title: '保存失败，请检查存储空间', icon: 'none', duration: 1500 })
+      return
+    }
+
+    const nextHabits = habits.map(x => x.id === id ? { ...x, checkins: next } : x)
+    wx.showToast({ title: wasChecked ? '已取消' : '打卡成功 🎉', icon: 'none', duration: 1200 })
+    this.setState({ habits: nextHabits })
   }
 
   loadTheme() {
@@ -59,7 +68,7 @@ export default class TodayPage extends Component<{}, State> {
     const dateStr = `${now.getMonth()+1}月${now.getDate()}日 周${weekday}`
 
     return (
-      <View className={`app-page theme-${theme}`}>
+      <View className={`app-page theme-${theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
         <View className='page-header-compact'>
           <View className='page-title'>今日打卡</View>
           <View className='header-meta'>

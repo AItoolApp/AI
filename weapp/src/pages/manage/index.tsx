@@ -1,8 +1,9 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, Button, Input, Textarea, ScrollView, Label, Image } from '@tarojs/components'
-import { loadData, saveData, loadTheme } from '../../utils/storage'
+import { loadData, saveData, loadTheme, saveTheme, removeHabitData } from '../../utils/storage'
 import { EMOJIS, COLORS, THEMES, Habit, CUSTOM_ICON_KEYS, ICON_MAP } from '../../utils/constants'
+import { getNavBarHeight } from '../../utils/safeArea'
 import HabitIcon from '../../components/HabitIcon'
 import './index.scss'
 
@@ -58,27 +59,27 @@ export default class ManagePage extends Component<{}, State> {
   }
 
   saveHabit() {
-    const { editingId, editName, editEmoji, editColor, habits } = this.state
+    const { editingId, editName, editEmoji, editColor, habits, theme } = this.state
     if (!editName.trim()) { wx.showToast({ title: '请输入名称', icon: 'none' }); return }
 
+    let next: Habit[]
     if (editingId) {
-      const h = habits.find(x => x.id === editingId)
-      if (h) { h.name = editName; h.emoji = editEmoji; h.color = editColor }
+      // 不可变更新，避免直接 mutate（P0-2 同款修复）
+      next = habits.map(x => x.id === editingId ? { ...x, name: editName, emoji: editEmoji, color: editColor } : x)
       wx.showToast({ title: '已更新', icon: 'none' })
     } else {
-      habits.push({
+      next = [...habits, {
         id: Date.now(),
         name: editName,
         emoji: editEmoji,
         color: editColor,
         checkins: {}
-      })
+      }]
       wx.showToast({ title: '已添加 🎉', icon: 'none' })
     }
 
-    const theme = loadData().theme
-    saveData({ habits, theme })
-    this.setState({ habits: [...habits], showModal: false, editName: '' })
+    saveData({ habits: next, theme })
+    this.setState({ habits: next, showModal: false, editName: '' })
   }
 
   deleteHabit(id: number) {
@@ -88,8 +89,8 @@ export default class ManagePage extends Component<{}, State> {
       success: (res) => {
         if (res.confirm) {
           const habits = this.state.habits.filter(h => h.id !== id)
-          const theme = loadData().theme
-          saveData({ habits, theme })
+          removeHabitData(id) // 清理独立 checkins key（v1.1）
+          saveData({ habits, theme: this.state.theme })
           this.setState({ habits })
           wx.showToast({ title: '已删除', icon: 'none' })
         }
@@ -133,9 +134,7 @@ export default class ManagePage extends Component<{}, State> {
   }
 
   selTheme(k: string) {
-    const data = loadData()
-    data.theme = k
-    saveData(data)
+    saveTheme(k) // 只写主题，不重写任何打卡数据（v1.1）
     this.setState({ theme: k, showTheme: false })
   }
 
@@ -143,7 +142,7 @@ export default class ManagePage extends Component<{}, State> {
     const { habits, showModal, showTheme, editName, editEmoji, editColor, editingId, theme } = this.state
 
     return (
-      <View className={`app-page theme-${theme}`}>
+      <View className={`app-page theme-${theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
         <View className='page-title'>管理</View>
 
         <Button className='add-btn' onClick={() => this.openAdd()}>+ 添加新习惯</Button>
@@ -198,8 +197,8 @@ export default class ManagePage extends Component<{}, State> {
                 </View>
                 <View className='fg'>
                   <Label className='fg-label'>联系方式（选填）</Label>
-                  <Textarea className='fg-input single-line-input' value={this.state.feedbackContact}
-                    placeholder='微信/QQ/邮箱，方便跟进' maxlength={50}
+                  <Input className='fg-input single-line-input' value={this.state.feedbackContact}
+                    placeholder='微信/QQ/邮箱，方便跟进' maxlength={50} type='text'
                     onInput={e => this.setState({ feedbackContact: e.detail.value })}
                   />
                 </View>
@@ -219,8 +218,8 @@ export default class ManagePage extends Component<{}, State> {
               <View className='modal-body'>
                 <View className='fg'>
                   <Label className='fg-label'>习惯名称</Label>
-                  <Textarea className='fg-input single-line-input' value={editName}
-                    placeholder='写个名字吧 ✏️' maxlength={20}
+                  <Input className='fg-input single-line-input' value={editName}
+                    placeholder='写个名字吧 ✏️' maxlength={20} type='text'
                     onInput={e => this.setState({ editName: e.detail.value })}
                   />
                   <View className='input-meta'>

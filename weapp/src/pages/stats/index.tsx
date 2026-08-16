@@ -3,6 +3,7 @@ import Taro from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
 import { loadData, loadTheme } from '../../utils/storage'
 import { calcStats } from '../../utils/stats'
+import { getNavBarHeight } from '../../utils/safeArea'
 import { HabitStats } from '../../utils/constants'
 import HabitIcon from '../../components/HabitIcon'
 import './index.scss'
@@ -32,7 +33,7 @@ export default class StatsPage extends Component<{}, State> {
 
     if (stats.length === 0) {
       return (
-        <View className={`app-page theme-${this.state.theme}`}>
+        <View className={`app-page theme-${this.state.theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
           <View className='page-title'>统计</View>
           <View className='empty-state'>
             <Text className='ei'>📊</Text>
@@ -43,7 +44,7 @@ export default class StatsPage extends Component<{}, State> {
     }
 
     return (
-      <View className={`app-page theme-${this.state.theme}`}>
+      <View className={`app-page theme-${this.state.theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
         <View className='page-title'>统计</View>
 
         <View className='stats-grid'>

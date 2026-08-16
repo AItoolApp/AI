@@ -3,6 +3,7 @@ import Taro from '@tarojs/taro'
 import { View, Text, ScrollView } from '@tarojs/components'
 import { loadData, loadTheme } from '../../utils/storage'
 import { getCheckinCounts, getStreak } from '../../utils/stats'
+import { getNavBarHeight } from '../../utils/safeArea'
 import { WEEKDAYS, Habit } from '../../utils/constants'
 import HabitIcon from '../../components/HabitIcon'
 import './index.scss'
@@ -61,7 +62,7 @@ export default class CalendarPage extends Component<{}, State> {
     }
 
     return (
-      <View className={`app-page theme-${this.state.theme}`}>
+      <View className={`app-page theme-${this.state.theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
         <View className='page-title'>日历</View>
 
         <View className='cal-nav'>

@@ -1,18 +1,19 @@
 # 习惯打卡项目交接与状态
 
-> 更新：2026-08-07
+> 更新：2026-08-16
 > 用途：项目内轻量交接入口。新会话先读本文件；需要细节时再读“外部上下文”中的文档，不要默认加载旧会话 JSONL。
 
 ## 当前结论
 
-- 小程序代码可构建：`weapp` 下 `npx tsc --noEmit` 和 `npm run build:weapp` 均通过（2026-08-07）。
+- 小程序代码可构建：`weapp` 下 `npx tsc --noEmit` 和 `npm run build:weapp` 均通过（2026-08-16）。
+- **UI 优化 v1.1（数据加固，P0-1~P0-6）已实施并提交**：存储拆分（`habit_data` 元信息 + `habit_checkins_<id>` 打卡记录，数据格式 v2 带自动迁移）、写入失败兜底弹窗、打卡不可变更新、导航栏安全区动态适配（`utils/safeArea.ts`）、单行输入改 Input、删除 12 个冗余 .jpg 图标。详见 `UI优化方案-v1.md` §8。
+- 剩余流程：Codex 外部审查 → 微信开发者工具真机/模拟器验收（重点：刘海屏标题、旧数据迁移、连续打卡压测）→ 之后推进 v1.2（交互升级，P1-1~P1-5）。
 - ICP 小程序备案初审已通过，等待短信验证；域名过初审是另一个项目，不混记。
 - 1.0 已提交上线流程；备案未通过前不可发布，可先做体验版测试。
 - 微信审核曾有“等腾讯域名备案”的驳回提示，但小程序未配置自定义域名，需要联系微信客服确认并纠正后重提。
 - 云开发环境：`cloudbase-d3g7noa8yac9d743c`。
 - `feedbackCollect` 已部署；`feedbacks` 已有 4 条测试记录，反馈链路正常。
 - `dailyReminder` 未部署；代码中仍是 `YOUR_TEMPLATE_ID`，需要订阅消息模板 ID 后才能部署。
-- Git `main` 当前 HEAD 为 `fd17f44`；小程序云接入、云函数、备案材料等改动尚未提交。
 - 习惯打卡早晚会：`automation-3` 每天 7:00/16:00，目标线程为 `019fdb39-e990-7c12-bf99-696421ec7629`（2026-08-07 起由本线程承接）。
 - 自动化审计流程：见 `AUTOMATION_HANDOVER_PROCESS.md`；其他项目缺口已同步协调线程，内部等待用户确认后再修复。
 
@@ -31,7 +32,8 @@
 - 今日打卡：`weapp/src/pages/today/index.tsx`
 - 管理/反馈：`weapp/src/pages/manage/index.tsx`
 - 日历/统计：`weapp/src/pages/calendar/index.tsx`、`weapp/src/pages/stats/index.tsx`
-- 本地数据：`weapp/src/utils/storage.ts`、`weapp/src/utils/constants.ts`
+- 本地数据：`weapp/src/utils/storage.ts`、`weapp/src/utils/constants.ts`（v2：meta + `habit_checkins_<id>`）
+- 导航栏安全区：`weapp/src/utils/safeArea.ts`
 - 云函数：`weapp/cloudfunctions/feedbackCollect`、`weapp/cloudfunctions/dailyReminder`
 - 云开发部署指南：`cloudfunctions/部署指南.md`
 - 云开发避坑：`云开发避坑与最佳实践.md`
@@ -41,8 +43,9 @@
 1. P0：用户查看微信小程序审核结果；如仍提示腾讯域名备案问题，联系客服确认后再重提。
 2. P0：ICP 短信验证通过后，继续等管局审核；通过后完成 1.0 提审/发布。
 3. P1：用户提供订阅消息模板 ID；拿到后把 `dailyReminder/index.js` 中的 `YOUR_TEMPLATE_ID` 替换并部署云函数。
-4. P2：按上线前准备清单执行体验版自测、运营素材、数据埋点。
-5. P2：提交当前未提交的云开发和小程序接入代码，排除 `node_modules/`、`weapp/project.private.config.json`。
+4. P1（v1.1 收尾）：UI 优化 v1.1 已实施，待 Codex 外部审查 + 真机/模拟器验收（刘海屏标题、旧数据迁移、10 习惯×365 天压测）。
+5. P2（v1.2）：按 `UI优化方案-v1.md` 推进交互升级（P1-1~P1-5：打卡按钮可访问性、打卡彩蛋、删除撤销、日历详情、主题引导）。
+6. P2：按上线前准备清单执行体验版自测、运营素材、数据埋点。
 
 ## 验证命令
 

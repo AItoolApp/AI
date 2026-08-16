@@ -68,9 +68,15 @@ export interface HabitStats {
 export interface AppData {
   habits: Habit[]
   theme: string
+  /** 数据结构版本，用于旧数据迁移（v1.1 起引入） */
+  schemaVersion?: number
 }
 
 export const STORAGE_KEY = 'habit_data'
+/** 每个习惯的打卡记录独立存储：habit_checkins_<id> */
+export const CHECKIN_KEY_PREFIX = 'habit_checkins_'
+/** 当前数据版本：v2 = checkins 从 habit_data 拆出到独立 key */
+export const DATA_VERSION = 2
 
 export const WEEKDAYS = ['日','一','二','三','四','五','六']
 /* End of File */

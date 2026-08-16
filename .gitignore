@@ -4,6 +4,9 @@
 .DS_Store
 Thumbs.db
 
+# Node dependencies
+node_modules/
+
 # Editor
 .vscode/
 .idea/
@@ -19,3 +22,6 @@ weapp/dist/
 # Taro / uni-app builds
 dist/
 .temp/
+
+# WeChat DevTools local private config (个人本地配置，不提交)
+weapp/project.private.config.json

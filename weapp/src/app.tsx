@@ -9,6 +9,11 @@ interface AppProps {
 
 class App extends Component<AppProps> {
   componentDidMount () {
+    // Initialize WeChat Cloud Development for feedback collection
+    if (Taro.cloud) {
+      Taro.cloud.init({ env: 'cloudbase-d3g7noa8yac9d743c' })
+    }
+
     // Load and apply saved theme
     try {
       const raw = Taro.getStorageSync(STORAGE_KEY)

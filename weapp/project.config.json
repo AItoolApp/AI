@@ -1,5 +1,6 @@
 {
-  "miniprogramRoot": "./dist",
+  "miniprogramRoot": "dist/",
+  "cloudfunctionRoot": "cloudfunctions/",
   "projectname": "习惯打卡",
   "description": "每日习惯打卡小程序",
   "appid": "wx9ea086a21624c882",
@@ -24,12 +25,30 @@
     "lazyloadPlaceholderEnable": false,
     "useMultiFrameRuntime": true,
     "useApiHook": true,
-    "useApiHostProcess": true
+    "useApiHostProcess": true,
+    "compileWorklet": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
   },
   "compileType": "miniprogram",
   "libVersion": "3.7.0",
   "packOptions": {
     "ignore": [],
     "include": []
-  }
+  },
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
 }

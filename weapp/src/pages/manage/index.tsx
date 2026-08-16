@@ -97,13 +97,13 @@ export default class ManagePage extends Component<{}, State> {
     })
   }
 
-  submitFeedback() {
+  async submitFeedback() {
     const { feedbackText, feedbackContact, habits } = this.state
     if (!feedbackText.trim()) {
       wx.showToast({ title: '写点什么吧～', icon: 'none' })
       return
     }
-    // Store feedback locally for now
+    // Store feedback locally as fallback
     const feedbacks = Taro.getStorageSync('habit_feedbacks') || '[]'
     const list = JSON.parse(feedbacks)
     list.push({
@@ -112,6 +112,22 @@ export default class ManagePage extends Component<{}, State> {
       time: new Date().toISOString()
     })
     Taro.setStorageSync('habit_feedbacks', JSON.stringify(list))
+
+    // Upload to WeChat Cloud Development when available
+    if (Taro.cloud) {
+      try {
+        await Taro.cloud.callFunction({
+          name: 'feedbackCollect',
+          data: {
+            text: feedbackText.trim(),
+            contact: feedbackContact.trim()
+          }
+        })
+      } catch (e) {
+        console.error('Cloud feedback failed, local copy kept:', e)
+      }
+    }
+
     wx.showToast({ title: '感谢反馈 🎉', icon: 'none', duration: 2000 })
     this.setState({ showFeedback: false, feedbackText: '', feedbackContact: '' })
   }

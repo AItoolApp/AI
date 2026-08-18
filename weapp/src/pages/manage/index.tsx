@@ -176,7 +176,7 @@ export default class ManagePage extends Component<{}, State> {
         )}
 
         <View className='about-section'>
-          <Text className='about-version'>习惯打卡 v1.0</Text>
+          <Text className='about-version'>习惯打卡 v1.1.0</Text>
           <Text className='about-line'>每天打卡，见证改变</Text>
         </View>
 

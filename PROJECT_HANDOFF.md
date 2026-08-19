@@ -21,7 +21,7 @@
 - 云开发环境：`cloudbase-d3g7noa8yac9d743c`。
 - `feedbackCollect` 已部署；`feedbacks` 已有 4 条测试记录，反馈链路正常。
 - `dailyReminder` 未部署；代码中仍是 `YOUR_TEMPLATE_ID`，需要订阅消息模板 ID 后才能部署。
-- 本地 `main` 与 `origin/main` 已同步（2026-08-19 push：含 `42d6eab` v1.1 数据加固、`d0d63a9` v1.1.0 提审文档、`e977fc1` 认证通过更新）。
+- 本地 `main` 与 `origin/main` 已同步（2026-08-19 push：含 v1.1 数据加固代码、v1.1.0 提审/认证/发布等文档更新）。
 - 习惯打卡早晚会：`automation-3` 已暂停且指向旧线程，恢复前必须先更新目标线程与抄送目标。
 - 自动化审计流程：见 `AUTOMATION_HANDOVER_PROCESS.md`；其他项目缺口已同步协调线程，内部等待用户确认后再修复。
 

@@ -25,3 +25,4 @@ dist/
 
 # WeChat DevTools local private config (个人本地配置，不提交)
 weapp/project.private.config.json
+素材图片/*.png

@@ -6,7 +6,7 @@ import HabitIcon from '../../components/HabitIcon'
 import { getStreak } from '../../utils/stats'
 import { loadData, saveHabitCheckins, todayStr, loadTheme, loadIdentity, saveIdentity, loadEnergy, awardEnergyOnceToday } from '../../utils/storage'
 import { getTodayCard, IDENTITIES, ContentCard } from '../../utils/content'
-import { CARD_BG } from '../../utils/cardTheme'
+import { getCardBg } from '../../utils/cardTheme'
 import { getNavBarHeight } from '../../utils/safeArea'
 import './index.scss'
 
@@ -134,7 +134,7 @@ export default class TodayPage extends Component<{}, State> {
 
         {/* 今日知识卡片 */}
         <View className={`knowledge-card kc-${card.category}`} onClick={() => this.setState({ cardExpanded: !cardExpanded })}>
-          <View className='kc-bg' style={`background-image: url(${CARD_BG[card.category] || CARD_BG['learning']});`} />
+          <View className='kc-bg' style={`background-image: url(${getCardBg(card.category)});`} />
           <View className='kc-top'>
             <View className='kc-badge'>
               <Text>{card.type === 'video' ? '🎬 精品视频' : card.type === 'tip' ? '💡 方法卡' : '📖 经典语录'}</Text>

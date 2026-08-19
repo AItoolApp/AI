@@ -22,18 +22,20 @@
   .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
   .title { font-size:34px; font-weight:800; }
   .badge { font-size:20px; color:var(--acc-txt); background:var(--acc-light); padding:6px 14px; border-radius:12px; }
-  .summary { font-size:22px; color:var(--acc-txt); }
+  .summary { font-size:22px; color:var(--acc-txt); margin-bottom:12px; }
 
   .kcard {
     background:var(--card); border:1px solid var(--border); border-radius:20px;
     padding:18px; margin-bottom:14px; box-shadow:0 1px 3px rgba(60,40,20,.06), 0 4px 12px rgba(60,40,20,.05);
-    position:relative; overflow:hidden;
+    position:relative; overflow:hidden; cursor:pointer;
   }
   .kcard::after { content:''; position:absolute; top:-20px; right:-20px; width:90px; height:90px; border-radius:50%; background:radial-gradient(circle,var(--acc-light),transparent 70%); }
   .ktop { display:flex; justify-content:space-between; align-items:center; }
   .kbadge { font-size:20px; font-weight:600; color:var(--acc-txt); }
   .kmore { font-size:20px; color:var(--txt3); }
-  .ktitle { font-size:30px; font-weight:700; margin:10px 0 6px; }
+  .ktitle { font-size:30px; font-weight:800; margin:10px 0 6px; }
+  .khook { font-size:25px; color:var(--txt2); line-height:1.5; }
+  .khighlight { font-size:26px; font-weight:700; color:var(--acc-txt); background:var(--acc-light); padding:10px 14px; border-radius:12px; line-height:1.5; margin-bottom:8px; }
   .ktext { font-size:25px; color:var(--txt); line-height:1.6; }
   .ksource { font-size:20px; color:var(--txt3); text-align:right; margin-top:6px; }
   .kbtn { display:inline-block; background:var(--acc); color:#fff; font-size:22px; border-radius:12px; padding:10px 20px; margin-top:10px; }
@@ -49,14 +51,19 @@
   .check.on { background:var(--acc); }
 
   .identity { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; }
-  .ibox { width:84%; background:var(--card); border-radius:28px; padding:32px 24px 24px; }
+  .ibox { width:84%; background:var(--card); border-radius:28px; padding:32px 24px 24px; max-height:86vh; overflow:auto; }
   .ititle { font-size:34px; font-weight:700; text-align:center; }
   .isub { font-size:22px; color:var(--txt3); text-align:center; margin:8px 0 20px; }
-  .iitem { display:flex; align-items:center; gap:16px; padding:16px; border-radius:18px; background:var(--acc-light); margin-bottom:12px; }
+  .iitem { display:flex; align-items:center; gap:16px; padding:16px; border-radius:18px; background:var(--acc-light); margin-bottom:12px; cursor:pointer; border:2px solid transparent; }
+  .iitem.on { border-color:var(--acc); }
   .iemoji { font-size:44px; }
+  .iinfo { flex:1; }
   .iname { font-size:28px; font-weight:700; }
   .idesc { font-size:20px; color:var(--txt2); }
-  .iskip { margin-top:16px; text-align:center; color:var(--txt3); font-size:22px; }
+  .icheck { width:44px; height:44px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:28px; color:#fff; }
+  .icheck.on { background:var(--acc); border-color:var(--acc); }
+  .ibtn { display:block; width:100%; margin-top:16px; background:var(--acc); color:#fff; font-size:26px; border:none; border-radius:14px; padding:14px; cursor:pointer; }
+  .iskip { margin-top:12px; text-align:center; color:var(--txt3); font-size:22px; cursor:pointer; }
   .note { margin-top:24px; padding:16px; background:var(--ok-light); border-radius:16px; font-size:20px; color:var(--txt2); line-height:1.6; }
 </style>
 </head>
@@ -65,17 +72,21 @@
     <div class="title">今日打卡</div>
     <div class="badge">8月19日 周三</div>
   </div>
-  <div class="summary">✓ 1/3</div>
+  <div class="summary">✓ 1/3 · 能量 5 点</div>
 
-  <div class="kcard">
+  <div class="kcard" id="kcard">
     <div class="ktop">
       <div class="kbadge">💡 方法卡 · 学习成长推荐</div>
-      <div class="kmore">轻点收起</div>
+      <div class="kmore" id="kmore">轻点收起</div>
     </div>
     <div class="ktitle">学习方法</div>
-    <div class="ktext">费曼学习法：把你刚学的内容讲给一个完全不懂的人听，讲不明白的地方就是你的知识漏洞。</div>
-    <div class="ksource">—— 费曼学习法</div>
-    <div class="ktip">💪 完成打卡后，明天还会有新卡片</div>
+    <div class="khook" id="khook">✨ 讲给别人听，才知道自己哪里不会</div>
+    <div id="kbody">
+      <div class="khighlight">✨ 讲给别人听，才知道自己哪里不会</div>
+      <div class="ktext">费曼学习法：把你刚学的内容讲给一个完全不懂的人听，讲不明白的地方就是你的知识漏洞。</div>
+      <div class="ksource">—— 费曼学习法</div>
+      <div class="ktip">💪 完成打卡后，明天还会有新卡片</div>
+    </div>
   </div>
 
   <div class="habit">
@@ -104,23 +115,60 @@
   </div>
 
   <div class="note">
-    <b>v1.2 第 1 轮新增：</b><br>
-    ① 今日知识卡片（语录/方法/视频链接）<br>
-    ② 首次进入身份选择（考研/学习/认知/生活）<br>
-    ③ 日历补签最近 3 天<br>
-    ④ 每个习惯可设每周休息日，休息日不断连击
+    <b>v1.2 第 1 轮更新（已按反馈调整）：</b><br>
+    ① 身份可多选、可在管理页重新选择<br>
+    ② 新增「英语学习」身份<br>
+    ③ 卡片突出 highlight 重点句<br>
+    ④ 补签需 3 点能量兑换（坚持打卡每天 +1）<br>
+    ⑤ 统计页/空状态换用活泼图标
   </div>
 
-  <div class="identity">
+  <div class="identity" id="identity">
     <div class="ibox">
       <div class="ititle">🎯 你更想提升哪方面？</div>
-      <div class="isub">选一个身份，我会推荐更合适的内容卡片</div>
-      <div class="iitem"><div class="iemoji">📚</div><div><div class="iname">考研备考</div><div class="idesc">每天学习打卡，稳稳上岸</div></div></div>
-      <div class="iitem"><div class="iemoji">🌱</div><div><div class="iname">学习成长</div><div class="idesc">学点东西，持续进步</div></div></div>
-      <div class="iitem"><div class="iemoji">🧠</div><div><div class="iname">认知提升</div><div class="idesc">思维升级，效率翻倍</div></div></div>
-      <div class="iitem"><div class="iemoji">🍵</div><div><div class="iname">生活方式</div><div class="idesc">高质量生活，爱自己</div></div></div>
-      <div class="iskip">先随便看看</div>
+      <div class="isub">可多选，我会综合推荐内容卡片</div>
+      <div class="iitem" data-key="kaoyan"><div class="iemoji">📚</div><div class="iinfo"><div class="iname">考研备考</div><div class="idesc">每天学习打卡，稳稳上岸</div></div><div class="icheck"></div></div>
+      <div class="iitem" data-key="study"><div class="iemoji">🌱</div><div class="iinfo"><div class="iname">学习成长</div><div class="idesc">学点东西，持续进步</div></div><div class="icheck"></div></div>
+      <div class="iitem" data-key="english"><div class="iemoji">🗣️</div><div class="iinfo"><div class="iname">英语学习</div><div class="idesc">听说读写，每天进步一点</div></div><div class="icheck"></div></div>
+      <div class="iitem" data-key="cognition"><div class="iemoji">🧠</div><div class="iinfo"><div class="iname">认知提升</div><div class="idesc">思维升级，效率翻倍</div></div><div class="icheck"></div></div>
+      <div class="iitem" data-key="life"><div class="iemoji">🍵</div><div class="iinfo"><div class="iname">生活方式</div><div class="idesc">高质量生活，爱自己</div></div><div class="icheck"></div></div>
+      <button class="ibtn" id="confirmBtn">开始打卡</button>
+      <div class="iskip" id="skipBtn">先随便看看</div>
     </div>
   </div>
+
+<script>
+  // 身份多选
+  var items = document.querySelectorAll('.iitem');
+  var selected = [];
+  items.forEach(function(el) {
+    el.addEventListener('click', function() {
+      var key = el.getAttribute('data-key');
+      var idx = selected.indexOf(key);
+      if (idx >= 0) { selected.splice(idx, 1); el.classList.remove('on'); el.querySelector('.icheck').classList.remove('on'); }
+      else { selected.push(key); el.classList.add('on'); el.querySelector('.icheck').classList.add('on'); }
+      updateBtn();
+    });
+  });
+  function updateBtn() {
+    document.getElementById('confirmBtn').textContent = selected.length > 0 ? '开始打卡（已选 ' + selected.length + ' 项）' : '开始打卡';
+  }
+  function hideIdentity() {
+    document.getElementById('identity').style.display = 'none';
+  }
+  document.getElementById('confirmBtn').addEventListener('click', hideIdentity);
+  document.getElementById('skipBtn').addEventListener('click', hideIdentity);
+
+  // 卡片展开/收起
+  var expanded = true;
+  document.getElementById('kcard').addEventListener('click', function() {
+    expanded = !expanded;
+    document.getElementById('kbody').style.display = expanded ? 'block' : 'none';
+    document.getElementById('khook').style.display = expanded ? 'none' : 'block';
+    document.getElementById('kmore').textContent = expanded ? '轻点收起' : '轻点展开';
+  });
+  // 初始为展开
+  document.getElementById('khook').style.display = 'none';
+</script>
 </body>
 </html>

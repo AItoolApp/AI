@@ -1,10 +1,10 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
-import { View, Text, Button, ScrollView } from '@tarojs/components'
-import { Habit } from '../../utils/constants'
+import { View, Text, Button, ScrollView, Image } from '@tarojs/components'
+import { Habit, ICON_MAP } from '../../utils/constants'
 import HabitIcon from '../../components/HabitIcon'
 import { getStreak } from '../../utils/stats'
-import { loadData, saveHabitCheckins, todayStr, loadTheme, loadIdentity, saveIdentity } from '../../utils/storage'
+import { loadData, saveHabitCheckins, todayStr, loadTheme, loadIdentity, saveIdentity, loadEnergy, awardEnergyOnceToday } from '../../utils/storage'
 import { getTodayCard, IDENTITIES, ContentCard } from '../../utils/content'
 import { getNavBarHeight } from '../../utils/safeArea'
 import './index.scss'
@@ -14,6 +14,7 @@ interface State {
   currentDate: string
   theme: string
   identity: string
+  selected: string[]
   showIdentity: boolean
   card: ContentCard
   cardExpanded: boolean
@@ -25,6 +26,7 @@ export default class TodayPage extends Component<{}, State> {
     currentDate: todayStr(),
     theme: 'latte',
     identity: '',
+    selected: [],
     showIdentity: false,
     card: getTodayCard(),
     cardExpanded: false
@@ -36,7 +38,7 @@ export default class TodayPage extends Component<{}, State> {
     this.loadTheme()
     this.initIdentity()
   }
-  componentDidShow() { this.loadHabits(); this.loadTheme() }
+  componentDidShow() { this.loadHabits(); this.loadTheme(); this.initIdentity() }
 
   initIdentity() {
     const identity = loadIdentity()
@@ -47,9 +49,17 @@ export default class TodayPage extends Component<{}, State> {
     }
   }
 
-  chooseIdentity(key: string) {
-    saveIdentity(key)
-    this.setState({ identity: key, showIdentity: false, card: getTodayCard(key) })
+  toggleSelect(key: string) {
+    const { selected } = this.state
+    const next = selected.includes(key) ? selected.filter(k => k !== key) : [...selected, key]
+    this.setState({ selected: next })
+  }
+
+  confirmIdentity() {
+    const keys = this.state.selected.length > 0 ? this.state.selected : ['study']
+    const identity = keys.join(',')
+    saveIdentity(identity)
+    this.setState({ identity, showIdentity: false, card: getTodayCard(identity) })
   }
 
   loadHabits() {
@@ -79,7 +89,13 @@ export default class TodayPage extends Component<{}, State> {
     }
 
     const nextHabits = habits.map(x => x.id === id ? { ...x, checkins: next } : x)
-    wx.showToast({ title: wasChecked ? '已取消' : '打卡成功 🎉', icon: 'none', duration: 1200 })
+    let tip = wasChecked ? '已取消' : '打卡成功 🎉'
+    if (!wasChecked) {
+      const before = loadEnergy()
+      const energy = awardEnergyOnceToday()
+      if (energy > before) tip = `打卡成功 🎉 能量+1（${energy}点）`
+    }
+    wx.showToast({ title: tip, icon: 'none', duration: 1500 })
     this.setState({ habits: nextHabits })
   }
 
@@ -93,12 +109,15 @@ export default class TodayPage extends Component<{}, State> {
   }
 
   render() {
-    const { habits, currentDate, theme, identity, showIdentity, card, cardExpanded } = this.state
+    const { habits, currentDate, theme, identity, selected, showIdentity, card, cardExpanded } = this.state
     const now = new Date()
     const weekday = ['日','一','二','三','四','五','六'][now.getDay()]
     const dateStr = `${now.getMonth()+1}月${now.getDate()}日 周${weekday}`
     const allDone = habits.length > 0 && habits.every(h => h.checkins && h.checkins[currentDate])
-    const identityName = IDENTITIES.find(x => x.key === identity)?.name || '学习成长'
+    const idtKeys = identity.split(',').filter(Boolean)
+    const identityName = idtKeys.length === 1
+      ? (IDENTITIES.find(x => x.key === idtKeys[0])?.name || '学习成长') + '推荐'
+      : '多身份推荐'
 
     return (
       <View className={`app-page theme-${theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
@@ -117,15 +136,16 @@ export default class TodayPage extends Component<{}, State> {
           <View className='kc-top'>
             <View className='kc-badge'>
               <Text>{card.type === 'video' ? '🎬 精品视频' : card.type === 'tip' ? '💡 方法卡' : '📖 经典语录'}</Text>
-              <Text className='kc-cat'> · {identityName}推荐</Text>
+              <Text className='kc-cat'> · {identityName}</Text>
             </View>
             {!cardExpanded && <Text className='kc-more'>轻点展开</Text>}
           </View>
           <Text className='kc-title'>{card.title}</Text>
           {!cardExpanded ? (
-            <Text className='kc-hook'>{card.text.slice(0, 30)}{card.text.length > 30 ? '…' : ''}</Text>
+            <Text className='kc-hook'>{card.highlight || card.text.slice(0, 30)}{(card.highlight || card.text).length > 30 ? '…' : ''}</Text>
           ) : (
             <View className='kc-body'>
+              {card.highlight && <Text className='kc-highlight'>✨ {card.highlight}</Text>}
               <Text className='kc-text'>{card.text}</Text>
               {card.source && <Text className='kc-source'>—— {card.source}</Text>}
               {card.type === 'video' && card.link && (
@@ -142,7 +162,7 @@ export default class TodayPage extends Component<{}, State> {
 
         {habits.length === 0 ? (
           <View className='empty-state'>
-            <Text className='ei'>🌸</Text>
+            <Image className='empty-icon-img' src={ICON_MAP['plant']} mode='aspectFit' />
             <Text>还没有习惯呢～{'\n'}来创建你的第一个习惯吧！</Text>
             <Button className='btn-primary' onClick={() => {
               wx.switchTab({ url: '/pages/manage/index' })
@@ -180,24 +200,31 @@ export default class TodayPage extends Component<{}, State> {
           </ScrollView>
         )}
 
-        {/* 首次进入：身份选择 */}
+        {/* 身份选择（可多选，可重新进入） */}
         {showIdentity && (
           <View className='identity-overlay'>
             <View className='identity-box'>
               <View className='identity-title'>🎯 你更想提升哪方面？</View>
-              <View className='identity-sub'>选一个身份，我会推荐更合适的内容卡片</View>
+              <View className='identity-sub'>可多选，我会综合推荐内容卡片</View>
               <View className='identity-list'>
-                {IDENTITIES.map(idt => (
-                  <View key={idt.key} className='identity-item' onClick={() => this.chooseIdentity(idt.key)}>
-                    <Text className='identity-emoji'>{idt.emoji}</Text>
-                    <View className='identity-info'>
-                      <Text className='identity-name'>{idt.name}</Text>
-                      <Text className='identity-desc'>{idt.desc}</Text>
+                {IDENTITIES.map(idt => {
+                  const on = selected.includes(idt.key)
+                  return (
+                    <View key={idt.key} className={`identity-item ${on ? 'on' : ''}`} onClick={() => this.toggleSelect(idt.key)}>
+                      <Text className='identity-emoji'>{idt.emoji}</Text>
+                      <View className='identity-info'>
+                        <Text className='identity-name'>{idt.name}</Text>
+                        <Text className='identity-desc'>{idt.desc}</Text>
+                      </View>
+                      <View className={`identity-check ${on ? 'checked' : ''}`}>{on ? '✓' : ''}</View>
                     </View>
-                  </View>
-                ))}
+                  )
+                })}
               </View>
-              <Button className='identity-skip' onClick={() => this.chooseIdentity('study')}>先随便看看</Button>
+              <Button className='identity-confirm' onClick={() => this.confirmIdentity()}>
+                开始打卡{selected.length > 0 ? `（已选 ${selected.length} 项）` : ''}
+              </Button>
+              <Button className='identity-skip' onClick={() => this.confirmIdentity()}>先随便看看</Button>
             </View>
           </View>
         )}

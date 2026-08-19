@@ -210,3 +210,52 @@ export function saveIdentity(key: string): boolean {
     return false
   }
 }
+
+/* ─── 补签能量（v1.2 第 1 轮反馈：坚持打卡积累能量，兑换补签）─── */
+
+const ENERGY_KEY = 'habit_makeup_energy'
+const ENERGY_DATE_KEY = 'habit_energy_date'
+export const MAKEUP_COST = 3
+
+export function loadEnergy(): number {
+  try {
+    const n = parseInt(Taro.getStorageSync(ENERGY_KEY), 10)
+    return isNaN(n) ? 0 : n
+  } catch (e) {
+    return 0
+  }
+}
+
+function saveEnergy(n: number) {
+  try {
+    Taro.setStorageSync(ENERGY_KEY, String(Math.max(0, n)))
+  } catch (e) {
+    console.error('saveEnergy error:', e)
+  }
+}
+
+/** 每天第一次打卡奖励 1 点能量，返回当前能量 */
+export function awardEnergyOnceToday(): number {
+  const today = todayStr()
+  try {
+    const last = Taro.getStorageSync(ENERGY_DATE_KEY)
+    if (last === today) return loadEnergy()
+    Taro.setStorageSync(ENERGY_DATE_KEY, today)
+  } catch (e) {
+    console.error('awardEnergy date error:', e)
+  }
+  const next = loadEnergy() + 1
+  saveEnergy(next)
+  return next
+}
+
+export function spendEnergy(cost: number): boolean {
+  const cur = loadEnergy()
+  if (cur < cost) return false
+  saveEnergy(cur - cost)
+  return true
+}
+
+export function refundEnergy(n: number) {
+  saveEnergy(loadEnergy() + n)
+}

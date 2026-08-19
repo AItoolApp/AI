@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, Button, Input, Textarea, ScrollView, Label, Image } from '@tarojs/components'
-import { loadData, saveData, loadTheme, saveTheme, removeHabitData } from '../../utils/storage'
+import { loadData, saveData, loadTheme, saveTheme, removeHabitData, saveIdentity } from '../../utils/storage'
 import { EMOJIS, COLORS, THEMES, WEEKDAYS, Habit, CUSTOM_ICON_KEYS, ICON_MAP } from '../../utils/constants'
 import { getNavBarHeight } from '../../utils/safeArea'
 import HabitIcon from '../../components/HabitIcon'
@@ -153,6 +153,13 @@ export default class ManagePage extends Component<{}, State> {
 
         <Button className='theme-btn' onClick={() => this.setState({ showTheme: true })}>
           🎨 切换主题
+        </Button>
+
+        <Button className='theme-btn' onClick={() => {
+          saveIdentity('')
+          wx.showToast({ title: '下次进入今日页可重新选择身份', icon: 'none', duration: 2000 })
+        }}>
+          🎯 重新选择身份
         </Button>
 
         <Button className='theme-btn' onClick={() => this.setState({ showFeedback: true })}>

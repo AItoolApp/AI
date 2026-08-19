@@ -1,10 +1,10 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
-import { View, Text } from '@tarojs/components'
+import { View, Text, Image } from '@tarojs/components'
 import { loadData, loadTheme } from '../../utils/storage'
 import { calcStats } from '../../utils/stats'
 import { getNavBarHeight } from '../../utils/safeArea'
-import { HabitStats } from '../../utils/constants'
+import { HabitStats, ICON_MAP } from '../../utils/constants'
 import HabitIcon from '../../components/HabitIcon'
 import './index.scss'
 
@@ -36,7 +36,7 @@ export default class StatsPage extends Component<{}, State> {
         <View className={`app-page theme-${this.state.theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
           <View className='page-title'>统计</View>
           <View className='empty-state'>
-            <Text className='ei'>📊</Text>
+            <Image className='empty-icon-img' src={ICON_MAP['star']} mode='aspectFit' />
             <Text>还没有数据，开始打卡吧！</Text>
           </View>
         </View>
@@ -49,18 +49,22 @@ export default class StatsPage extends Component<{}, State> {
 
         <View className='stats-grid'>
           <View className='stat-card'>
+            <Image className='stat-icon-img' src={ICON_MAP['target']} mode='aspectFit' />
             <Text className='sv'>{totalHabits}</Text>
             <Text className='sl'>习惯总数</Text>
           </View>
           <View className='stat-card'>
+            <Image className='stat-icon-img' src={ICON_MAP['smile']} mode='aspectFit' />
             <Text className='sv'>{todayChecked}</Text>
             <Text className='sl'>今日完成</Text>
           </View>
           <View className='stat-card'>
+            <Image className='stat-icon-img' src={ICON_MAP['star']} mode='aspectFit' />
             <Text className='sv'>{avgRate}%</Text>
             <Text className='sl'>月均完成率</Text>
           </View>
           <View className='stat-card'>
+            <Image className='stat-icon-img' src={ICON_MAP['muscle']} mode='aspectFit' />
             <Text className='sv'>{longestStreak}</Text>
             <Text className='sl'>最长连击</Text>
           </View>

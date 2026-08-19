@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, ScrollView } from '@tarojs/components'
-import { loadData, loadTheme, saveHabitCheckins } from '../../utils/storage'
+import { loadData, loadTheme, saveHabitCheckins, loadEnergy, spendEnergy, refundEnergy, MAKEUP_COST } from '../../utils/storage'
 import { getCheckinCounts, getStreak } from '../../utils/stats'
 import { getNavBarHeight } from '../../utils/safeArea'
 import { WEEKDAYS, Habit } from '../../utils/constants'
@@ -79,9 +79,20 @@ export default class CalendarPage extends Component<{}, State> {
 
     const prev = h.checkins || {}
     const next: Record<string, boolean> = { ...prev }
-    if (prev[makeUpDate]) {
+    const isOn = !!prev[makeUpDate]
+    if (isOn) {
       delete next[makeUpDate]
     } else {
+      // 补签需要消耗能量：坚持打卡积累，3 点兑换 1 次
+      const energy = loadEnergy()
+      if (energy < MAKEUP_COST) {
+        wx.showToast({ title: `补签需要 ${MAKEUP_COST} 点能量，当前 ${energy} 点，坚持打卡积累吧`, icon: 'none', duration: 2200 })
+        return
+      }
+      if (!spendEnergy(MAKEUP_COST)) {
+        wx.showToast({ title: '能量不足', icon: 'none' })
+        return
+      }
       next[makeUpDate] = true
     }
 
@@ -89,6 +100,13 @@ export default class CalendarPage extends Component<{}, State> {
     if (!ok) {
       wx.showToast({ title: '保存失败，请检查存储空间', icon: 'none', duration: 1500 })
       return
+    }
+
+    if (isOn) {
+      refundEnergy(MAKEUP_COST)
+      wx.showToast({ title: `已取消补签，返还 ${MAKEUP_COST} 点能量`, icon: 'none', duration: 1500 })
+    } else {
+      wx.showToast({ title: `补签成功，剩余 ${loadEnergy()} 点能量`, icon: 'none', duration: 1500 })
     }
 
     const nextHabits = habits.map(x => x.id === id ? { ...x, checkins: next } : x)
@@ -192,7 +210,7 @@ export default class CalendarPage extends Component<{}, State> {
           <View className='makeup-overlay' onClick={() => this.setState({ makeUpDate: null })}>
             <View className='makeup-box' onClick={e => e.stopPropagation()}>
               <View className='makeup-title'>📅 补签 · {makeUpDate}</View>
-              <View className='makeup-sub'>最近 3 天内可补，给自己一点温柔</View>
+              <View className='makeup-sub'>最近 3 天可补 · 当前 {loadEnergy()} 点能量 · 补签 1 次消耗 {MAKEUP_COST} 点</View>
               <ScrollView scrollY className='makeup-list'>
                 {this.state.habits.map(h => {
                   const checked = !!(h.checkins && h.checkins[makeUpDate])

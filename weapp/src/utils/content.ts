@@ -8,6 +8,8 @@ export interface ContentCard {
   source: string
   link: string
   tags: string[]
+  /** 卡片重点句，展示在正文前，用强调色突出 */
+  highlight?: string
 }
 
 export interface Identity {
@@ -21,6 +23,7 @@ export interface Identity {
 export const IDENTITIES: Identity[] = [
   { key: 'kaoyan', name: '考研备考', emoji: '📚', desc: '每天学习打卡，稳稳上岸', prefs: ['learning', 'cognition', 'growth', 'research'] },
   { key: 'study', name: '学习成长', emoji: '🌱', desc: '学点东西，持续进步', prefs: ['learning', 'literature', 'cognition', 'growth'] },
+  { key: 'english', name: '英语学习', emoji: '🗣️', desc: '听说读写，每天进步一点', prefs: ['learning', 'growth', 'lifestyle', 'cognition'] },
   { key: 'cognition', name: '认知提升', emoji: '🧠', desc: '思维升级，效率翻倍', prefs: ['cognition', 'learning', 'growth', 'lifestyle'] },
   { key: 'life', name: '生活方式', emoji: '🍵', desc: '高质量生活，爱自己', prefs: ['wellness', 'lifestyle', 'literature', 'growth'] }
 ]
@@ -40,14 +43,16 @@ export const CONTENT_LIBRARY: ContentCard[] = [
   { id: 'wel-002', category: 'wellness', type: 'quote', title: '养生放松', text: '睡前原谅一切，醒来便是新生。', source: '生活小记', link: '', tags: ['放松', '情绪'] },
   { id: 'wel-003', category: 'wellness', type: 'tip', title: '养生放松', text: '试试 4-7-8 呼吸法：吸气 4 秒，屏息 7 秒，呼气 8 秒，重复 4 组，帮助入眠。', source: '放松技巧', link: '', tags: ['呼吸', '睡眠'] },
   // ── 学习方法 ──
-  { id: 'lrn-001', category: 'learning', type: 'tip', title: '学习方法', text: '费曼学习法：把你刚学的内容讲给一个完全不懂的人听，讲不明白的地方就是你的知识漏洞。', source: '费曼学习法', link: '', tags: ['学习', '方法'] },
+  { id: 'lrn-001', category: 'learning', type: 'tip', title: '学习方法', text: '费曼学习法：把你刚学的内容讲给一个完全不懂的人听，讲不明白的地方就是你的知识漏洞。', source: '费曼学习法', link: '', tags: ['学习', '方法'], highlight: '讲给别人听，才知道自己哪里不会' },
   { id: 'lrn-002', category: 'learning', type: 'tip', title: '学习方法', text: '番茄工作法：25 分钟专注 + 5 分钟休息，每 4 轮休息 15-30 分钟。适合启动困难的任务。', source: '番茄工作法', link: '', tags: ['专注', '效率'] },
-  { id: 'lrn-003', category: 'learning', type: 'video', title: '牛津大学博士的时间管理黑科技', text: '把 24 小时用成 48 小时（中英校译）', source: 'B站', link: 'https://www.bilibili.com/video/BV15VFEz4E9M/', tags: ['时间管理', '成长'] },
-  { id: 'lrn-004', category: 'learning', type: 'video', title: '你真的可以在两周内学会任何东西', text: '学习方法论：快速入门任何技能', source: 'B站', link: 'https://www.bilibili.com/video/BV148QZBzEDV/', tags: ['学习', '方法'] },
+  { id: 'lrn-003', category: 'learning', type: 'video', title: '牛津大学博士的时间管理黑科技', text: '把 24 小时用成 48 小时（中英校译）', source: 'B站', link: 'https://www.bilibili.com/video/BV15VFEz4E9M/', tags: ['时间管理', '成长'], highlight: '一天多出 24 小时的方法，都在这里' },
+  { id: 'lrn-004', category: 'learning', type: 'video', title: '你真的可以在两周内学会任何东西', text: '学习方法论：快速入门任何技能', source: 'B站', link: 'https://www.bilibili.com/video/BV148QZBzEDV/', tags: ['学习', '方法'], highlight: '两周入门任何技能，不是鸡汤是方法' },
   { id: 'lrn-005', category: 'learning', type: 'video', title: 'ChatGPT 当英语陪练太强啦', text: '职场·雅思·日常三场景，Native Speaker 角色扮演免费陪练', source: 'B站', link: 'https://www.bilibili.com/video/BV1o2L36eEiw/', tags: ['英语', 'AI'] },
   { id: 'lrn-006', category: 'learning', type: 'video', title: '全英 vlog：告别哑巴英语', text: '被油管博主狠狠投喂，沉浸式英语输入', source: 'B站', link: 'https://www.bilibili.com/video/BV1K2bB64EF5/', tags: ['英语', '听力'] },
+  { id: 'lrn-007', category: 'learning', type: 'tip', title: '英语学习', text: '影子跟读法：找一段 1 分钟听力材料，原声放一句，暂停跟读一句，模仿语调和停顿，每天 10 分钟。', source: '影子跟读法', link: '', tags: ['英语', '口语'], highlight: '跟读 10 分钟，比听 1 小时更练口语' },
+  { id: 'lrn-008', category: 'learning', type: 'tip', title: '英语学习', text: '背单词别只背拼写：每个词配一个真实例句，读出来并造句，记忆留存率高 3 倍。', source: '词汇学习法', link: '', tags: ['英语', '单词'], highlight: '单词要放进句子里，才会用' },
   // ── 认知提升 ──
-  { id: 'cog-001', category: 'cognition', type: 'tip', title: '认知提升', text: '复利思维：每天进步 1%，一年后是 37.8 倍；每天退步 1%，一年后只剩 0.03。', source: '复利公式', link: '', tags: ['认知', '成长'] },
+  { id: 'cog-001', category: 'cognition', type: 'tip', title: '认知提升', text: '复利思维：每天进步 1%，一年后是 37.8 倍；每天退步 1%，一年后只剩 0.03。', source: '复利公式', link: '', tags: ['认知', '成长'], highlight: '每天 1% 的复利，一年后 37.8 倍' },
   { id: 'cog-002', category: 'cognition', type: 'quote', title: '认知提升', text: '我们听到的一切都是一个观点，不是事实；我们看见的一切都是一个视角，不是真相。', source: '马可·奥勒留', link: '', tags: ['认知', '思考'] },
   { id: 'cog-003', category: 'cognition', type: 'tip', title: '认知提升', text: '把“我做不到”换成“我暂时还没做到”，思维会从固定型转向成长型。', source: '成长型思维', link: '', tags: ['认知', '心态'] },
   // ── 学术研究 ──
@@ -64,11 +69,24 @@ function dayOfYear(d: Date): number {
   return Math.floor((d.getTime() - start.getTime()) / 86400000)
 }
 
+export function parseIdentityKeys(identityKey?: string): string[] {
+  if (!identityKey) return ['study']
+  const keys = identityKey.split(',').map(x => x.trim()).filter(Boolean)
+  return keys.length > 0 ? keys : ['study']
+}
+
 export function getTodayCard(identityKey?: string): ContentCard {
-  const idt = IDENTITIES.find(x => x.key === identityKey) || IDENTITIES[1]
+  const keys = parseIdentityKeys(identityKey)
   const doy = dayOfYear(new Date())
-  // 按身份偏好选板块，再按日期在板块内轮换
-  const cat = idt.prefs[doy % idt.prefs.length]
+  // 多身份：合并偏好并去重，按日期轮换板块
+  const prefs: string[] = []
+  keys.forEach(k => {
+    const idt = IDENTITIES.find(x => x.key === k)
+    if (!idt) return
+    idt.prefs.forEach(cat => { if (!prefs.includes(cat)) prefs.push(cat) })
+  })
+  if (prefs.length === 0) prefs.push('learning')
+  const cat = prefs[doy % prefs.length]
   const items = CONTENT_LIBRARY.filter(x => x.category === cat)
   const card = items[doy % items.length] || CONTENT_LIBRARY[0]
   return card

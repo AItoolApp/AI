@@ -170,6 +170,10 @@ export default class ManagePage extends Component<{}, State> {
         <Button className='add-btn' onClick={() => this.openAdd()}>+ 添加新习惯</Button>
 
         <View className='mgr-actions'>
+          <Button className='theme-btn mgr-pet' onClick={() => Taro.navigateTo({ url: '/pages/pet/index' })}>
+            <View className='mgr-icon'>🐣</View>
+            <Text className='mgr-btn-text'>宠物小窝</Text>
+          </Button>
           <Button className='theme-btn mgr-art' onClick={() => this.setState({ showTheme: true })}>
             <View className='mgr-icon'>🎨</View>
             <Text className='mgr-btn-text'>切换主题</Text>

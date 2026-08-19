@@ -1,0 +1,154 @@
+.nest-box {
+  position: relative;
+  height: 340px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, #fdeef0, #fff);
+  border: 1px solid var(--border);
+  box-shadow: var(--sh-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.nest-box.night {
+  background: linear-gradient(180deg, #f3ecfa, #fdeef0);
+}
+.nest-box.egg-mode {
+  background: linear-gradient(180deg, #fff7e8, #fff);
+}
+.nest-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 260px;
+}
+.pet-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+.pet-emoji {
+  font-size: 120px;
+  line-height: 1;
+}
+.pet-stage.sleeping .pet-emoji {
+  animation: breathe 3s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04, .96); }
+}
+.zzz {
+  position: absolute;
+  top: -10px;
+  right: -50px;
+  font-size: 30px;
+  color: #c9a0b0;
+  animation: floaty 2.6s ease-in-out infinite;
+}
+.dream {
+  font-size: 40px;
+  animation: floaty 3s ease-in-out infinite;
+}
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.nest-base {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f3cdd8;
+  z-index: 1;
+}
+.peek-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.peek-emoji {
+  font-size: 110px;
+  line-height: 1;
+}
+.peek-zzz {
+  font-size: 30px;
+  color: #c9a0b0;
+}
+.peek-dream {
+  font-size: 24px;
+  color: var(--txt2);
+}
+.pet-info {
+  background: var(--card);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  padding: 20px;
+  margin-top: 16px;
+  box-shadow: var(--sh);
+}
+.pet-name {
+  display: block;
+  font-size: 32px;
+  font-weight: 800;
+}
+.pet-stage {
+  display: block;
+  font-size: 22px;
+  color: var(--txt3);
+  margin-top: 4px;
+}
+.pet-energy {
+  display: block;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--acc);
+  margin-top: 10px;
+}
+.pet-progress {
+  display: block;
+  font-size: 22px;
+  color: var(--txt2);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+.pet-tip {
+  display: block;
+  font-size: 22px;
+  color: var(--txt3);
+  margin-top: 6px;
+}
+.pet-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+.pet-btn {
+  flex: 1;
+  background: var(--card);
+  color: var(--acc-txt);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  font-size: 24px;
+  font-weight: 700;
+  padding: 0 10px;
+}
+.pet-btn.primary {
+  background: var(--acc);
+  color: #fff;
+}
+.pet-footer {
+  text-align: center;
+  font-size: 20px;
+  color: var(--txt3);
+  margin-top: 20px;
+}

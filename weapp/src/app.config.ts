@@ -3,7 +3,8 @@ export default defineAppConfig({
     'pages/today/index',
     'pages/calendar/index',
     'pages/stats/index',
-    'pages/manage/index'
+    'pages/manage/index',
+    'pages/pet/index'
   ],
   window: {
     navigationStyle: 'custom',

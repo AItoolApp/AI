@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import Taro from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
 import { PetData, savePet, PET_TYPES } from '../utils/pet'
 import './FloatingPet.scss'
@@ -16,6 +17,11 @@ const EXPRESSIONS = [
 
 export default function FloatingPet({ pet, onUpdate }: Props) {
   const [expr, setExpr] = useState(0)
+  const win = Taro.getWindowInfo()
+  const [pos, setPos] = useState({ x: Math.max(0, win.windowWidth - 120), y: Math.max(0, win.windowHeight - 320) })
+  const offRef = useRef({ x: 0, y: 0 })
+  const draggingRef = useRef(false)
+
   if (!pet || pet.type === 'egg' || pet.sleeping) return null
 
   const type = PET_TYPES.find(t => t.key === pet.type)
@@ -31,12 +37,40 @@ export default function FloatingPet({ pet, onUpdate }: Props) {
     onUpdate()
   }
 
+  const onTouchStart = (e: any) => {
+    const t = e.touches[0]
+    offRef.current = { x: t.clientX - pos.x, y: t.clientY - pos.y }
+    draggingRef.current = true
+  }
+
+  const onTouchMove = (e: any) => {
+    if (!draggingRef.current) return
+    const t = e.touches[0]
+    const x = Math.min(Math.max(0, t.clientX - offRef.current.x), win.windowWidth - 96)
+    const y = Math.min(Math.max(0, t.clientY - offRef.current.y), win.windowHeight - 180)
+    setPos({ x, y })
+    e.stopPropagation && e.stopPropagation()
+  }
+
+  const onTouchEnd = () => {
+    draggingRef.current = false
+  }
+
   return (
-    <View className='floating-pet'>
+    <View
+      className='floating-pet fly-in'
+      style={`left: ${pos.x}px; top: ${pos.y}px;`}
+    >
       <View className='fp-bubble'>
         <Text>{EXPRESSIONS[expr].text}</Text>
       </View>
-      <View className='fp-body' onClick={tap}>
+      <View
+        className='fp-body'
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onClick={tap}
+      >
         <Text className='fp-emoji'>{emoji}</Text>
       </View>
       <View className='fp-sleep' onClick={sleep}>🏠</View>

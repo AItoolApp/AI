@@ -117,11 +117,15 @@ export default class ManagePage extends Component<{}, State> {
   }
 
   doDelete(id: number) {
-    const habits = this.state.habits.filter(h => h.id !== id)
-    removeHabitData(id)
-    saveData({ habits, theme: this.state.theme })
-    this.setState({ habits, pendingDelete: null })
-    wx.showToast({ title: '已删除', icon: 'none' })
+    // 用函数式 setState 保证拿到最新列表，避免异步状态导致删不掉
+    this.setState(prev => {
+      const habits = prev.habits.filter(h => h.id !== id)
+      removeHabitData(id)
+      saveData({ habits, theme: prev.theme })
+      return { habits, pendingDelete: null }
+    }, () => {
+      wx.showToast({ title: '已删除', icon: 'none' })
+    })
   }
 
   componentWillUnmount() {

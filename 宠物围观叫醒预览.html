@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>宠物围观 & 叫醒预览</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:linear-gradient(170deg,#fdf6f0,#f3ecfa); color:#2c1f14;
+    font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+    max-width:440px; margin:0 auto; padding:40px 16px 70px;
+  }
+  h1 { font-size:28px; font-weight:800; }
+  .sub { font-size:20px; color:#b09878; margin:6px 0 16px; line-height:1.5; }
+  .card { background:rgba(255,255,255,.92); border-radius:24px; padding:18px; margin-bottom:16px; border:1px solid rgba(180,140,100,.12); box-shadow:0 4px 16px rgba(60,40,20,.06); }
+  .stage {
+    height:280px; border-radius:20px; background:linear-gradient(180deg,#fdeef0,#fff);
+    display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;
+  }
+  .dream-bubble {
+    position:absolute; right:22px; top:22px; width:74px; height:74px; border-radius:50%;
+    background:#fff; border:2px solid #f3cdd8; display:flex; align-items:center; justify-content:center;
+    font-size:32px; animation: floatBubble 3s ease-in-out infinite; z-index:5;
+  }
+  @keyframes floatBubble { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+  .zzz { position:absolute; left:26px; top:24px; font-size:24px; color:#c9a0b0; animation: floatBubble 2.6s ease-in-out infinite; }
+  .pet-wrap { transition: transform .5s ease; }
+  .pet-wrap.sleeping svg { animation: breathe 3s ease-in-out infinite; }
+  @keyframes breathe { 0%,100%{transform:scale(1);} 50%{transform:scale(1.03,.97);} }
+  .pet-wrap.waking svg { animation: stretch .8s ease; }
+  @keyframes stretch { 0%{transform:scale(.92) rotate(-4deg);} 40%{transform:scale(1.06) rotate(2deg);} 100%{transform:scale(1) rotate(0);} }
+  .pet-wrap.mood svg { animation: wiggle 1.2s ease-in-out infinite; }
+  @keyframes wiggle { 0%,100%{transform:rotate(0);} 25%{transform:rotate(-3deg);} 75%{transform:rotate(3deg);} }
+  .btn-row { display:flex; gap:10px; margin-top:12px; }
+  .btn { flex:1; padding:12px 0; border:none; border-radius:16px; font-size:20px; font-weight:700; cursor:pointer; background:#c87a3a; color:#fff; }
+  .btn.ghost { background:#fff; color:#c87a3a; border:2px solid #c87a3a; }
+  .sel-row { display:flex; gap:10px; overflow-x:auto; margin-top:12px; padding-bottom:4px; }
+  .sel { flex-shrink:0; padding:10px 14px; border-radius:16px; border:2px solid transparent; background:#f5ede0; font-size:21px; font-weight:700; cursor:pointer; color:#5a4a3a; }
+  .sel.active { border-color:#c87a3a; background:#fff2e8; }
+</style>
+</head>
+<body>
+  <h1>🐣 围观 & 叫醒预览</h1>
+  <div class="sub">蛋和宠物在窝里睡觉都可围观（不是文字）；叫醒有睡眼惺忪和小情绪。</div>
+
+  <div class="card">
+    <div class="stage" id="stage">
+      <div class="dream-bubble" id="dream">✨</div>
+      <div class="zzz" id="zzz">Z z z</div>
+      <div class="pet-wrap sleeping" id="petWrap"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="sleepBtn">🌙 睡觉围观</button>
+      <button class="btn ghost" id="wakeBtn">☀️ 叫醒</button>
+    </div>
+    <div class="sel-row" id="selRow">
+      <button class="sel active" data-type="egg">🥚 灵宠蛋</button>
+      <button class="sel" data-type="qilin">🦌 麒麟</button>
+      <button class="sel" data-type="dragon">🐉 小龙</button>
+      <button class="sel" data-type="turtle">🐢 小乌龟</button>
+    </div>
+  </div>
+
+<script>
+  var type = 'egg';
+  var mode = 'sleep'; // sleep | wake | mood
+  var wrap = document.getElementById('petWrap');
+  var dream = document.getElementById('dream');
+  var zzz = document.getElementById('zzz');
+
+  function eyes(open, x, y) {
+    if (open === 'sleep') return '<path d="M'+ (x-4) +' '+ y +' Q'+ x +' '+(y-3)+' '+ (x+4) +' '+ y +'" stroke="#3a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/>';
+    if (open === 'half') return '<path d="M'+ (x-4) +' '+ y +' Q'+ x +' '+(y-2)+' '+ (x+4) +' '+ y +'" stroke="#3a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M'+ (x-3) +' '+(y+1.5)+' L'+ (x+3) +' '+(y+1.5)+'" stroke="#3a2a2a" stroke-width="1" stroke-linecap="round"/>';
+    if (open === 'daze') return '<circle cx="'+ (x-3) +'" cy="'+ y +'" r="1.8" fill="#3a2a2a"/><path d="M'+ (x+1) +' '+ (y-1.5) +' Q'+ (x+4) +' '+(y-1)+' '+ (x+5) +' '+ (y+1) +'" stroke="#3a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/>';
+    return '<circle cx="'+ (x-3) +'" cy="'+ y +'" r="2" fill="#3a2a2a"/><circle cx="'+ (x+3) +'" cy="'+ y +'" r="2" fill="#3a2a2a"/>';
+  }
+  function mouth(kind) {
+    if (kind === 'sleep') return '<path d="M47 58 Q50 59 53 58" stroke="#3a2a2a" stroke-width="1.2" fill="none" stroke-linecap="round"/>';
+    if (kind === 'happy') return '<path d="M46 57 Q50 62 54 57" stroke="#3a2a2a" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
+    if (kind === 'pout') return '<path d="M47 59 Q50 57 53 59" stroke="#3a2a2a" stroke-width="1.3" fill="none" stroke-linecap="round"/>';
+    return '<ellipse cx="50" cy="59" rx="2.2" ry="3" fill="#3a2a2a"/>';
+  }
+  function blush() { return '<circle cx="38" cy="56" r="4" fill="#f8b8c8" opacity=".55"/><circle cx="62" cy="56" r="4" fill="#f8b8c8" opacity=".55"/>'; }
+
+  function drawEgg(state) {
+    var e = state === 'sleep' ? 'sleep' : state === 'half' ? 'half' : 'open';
+    var m = state === 'happy' ? 'happy' : state === 'pout' ? 'pout' : state === 'daze' ? 'sleep' : state === 'sleep' ? 'sleep' : 'happy';
+    return '<svg width="150" height="150" viewBox="0 0 100 110">'
+      + '<ellipse cx="50" cy="65" rx="32" ry="40" fill="#fff7ec" stroke="#f3cdb8" stroke-width="1.5"/>'
+      + eyes(e, 50, 50) + mouth(m) + blush()
+      + '</svg>';
+  }
+  function drawQilin(state) {
+    var e = state === 'sleep' ? 'sleep' : state === 'half' ? 'half' : state === 'daze' ? 'daze' : 'open';
+    var m = state === 'happy' ? 'happy' : state === 'pout' ? 'pout' : state === 'daze' ? 'sleep' : state === 'sleep' ? 'sleep' : 'happy';
+    return '<svg width="170" height="170" viewBox="0 0 100 110">'
+      + '<ellipse cx="50" cy="68" rx="30" ry="26" fill="#fdf0d8" stroke="#e8c9a0" stroke-width="1.5"/>'
+      + '<circle cx="50" cy="42" r="22" fill="#fef7e8" stroke="#e8c9a0" stroke-width="1.5"/>'
+      + '<path d="M42 22 Q44 10 50 12 Q56 10 58 22" fill="#f7c873"/>'
+      + '<path d="M50 12 Q50 6 55 8 Q50 4 45 8 Q50 6 50 12" fill="#f7c873"/>'
+      + eyes(e, 50, 46) + mouth(m) + blush()
+      + '<path d="M28 60 Q20 56 16 48" stroke="#e8c9a0" stroke-width="2" fill="none" stroke-linecap="round"/>'
+      + '<path d="M72 60 Q80 56 84 48" stroke="#e8c9a0" stroke-width="2" fill="none" stroke-linecap="round"/>'
+      + '</svg>';
+  }
+  function drawDragon(state) {
+    var e = state === 'sleep' ? 'sleep' : state === 'half' ? 'half' : state === 'daze' ? 'daze' : 'open';
+    var m = state === 'happy' ? 'happy' : state === 'pout' ? 'pout' : state === 'daze' ? 'sleep' : state === 'sleep' ? 'sleep' : 'happy';
+    return '<svg width="170" height="170" viewBox="0 0 100 110">'
+      + '<ellipse cx="50" cy="68" rx="28" ry="24" fill="#d8f5e8" stroke="#a8dcc0" stroke-width="1.5"/>'
+      + '<circle cx="50" cy="42" r="21" fill="#eafaf2" stroke="#a8dcc0" stroke-width="1.5"/>'
+      + '<path d="M40 26 Q42 16 47 18 Q44 12 50 15 Q56 12 53 18 Q58 16 60 26" fill="#a8dcc0"/>'
+      + '<path d="M30 44 Q20 40 14 46 Q20 34 30 38" fill="#bde8d4" stroke="#a8dcc0" stroke-width="1.2"/>'
+      + '<path d="M70 44 Q80 40 86 46 Q80 34 70 38" fill="#bde8d4" stroke="#a8dcc0" stroke-width="1.2"/>'
+      + eyes(e, 50, 46) + mouth(m) + blush()
+      + '</svg>';
+  }
+  function drawTurtle(state) {
+    var e = state === 'sleep' ? 'sleep' : state === 'half' ? 'half' : state === 'daze' ? 'daze' : 'open';
+    var m = state === 'happy' ? 'happy' : state === 'pout' ? 'pout' : state === 'daze' ? 'sleep' : state === 'sleep' ? 'sleep' : 'happy';
+    return '<svg width="170" height="170" viewBox="0 0 100 110">'
+      + '<ellipse cx="50" cy="70" rx="30" ry="22" fill="#bde8d4" stroke="#8cc9ae" stroke-width="1.5"/>'
+      + '<path d="M32 58 Q50 52 68 58" fill="#d8f5e8" stroke="#8cc9ae" stroke-width="1.2"/>'
+      + '<circle cx="50" cy="44" r="18" fill="#d8f5e8" stroke="#8cc9ae" stroke-width="1.5"/>'
+      + eyes(e, 50, 46) + mouth(m) + blush()
+      + '<path d="M36 84 L30 92 M64 84 L70 92" stroke="#8cc9ae" stroke-width="2.4" stroke-linecap="round"/>'
+      + '</svg>';
+  }
+
+  function render() {
+    var fn = type === 'egg' ? drawEgg : type === 'qilin' ? drawQilin : type === 'dragon' ? drawDragon : drawTurtle;
+    var state = mode;
+    wrap.innerHTML = fn(state);
+    wrap.className = 'pet-wrap ' + (mode === 'sleep' ? 'sleeping' : mode === 'wake' ? 'waking' : 'mood');
+    if (mode === 'sleep') {
+      dream.style.display = 'flex';
+      zzz.style.display = 'block';
+      dream.textContent = type === 'egg' ? '🌙' : '💭';
+    } else {
+      dream.style.display = 'none';
+      zzz.style.display = 'none';
+    }
+  }
+
+  document.getElementById('sleepBtn').addEventListener('click', function(){ mode='sleep'; render(); });
+  document.getElementById('wakeBtn').addEventListener('click', function(){
+    mode='wake'; render();
+    setTimeout(function(){ mode='happy'; render(); }, 900);
+    setTimeout(function(){ mode='pout'; render(); }, 2200);
+    setTimeout(function(){ mode='daze'; render(); }, 3300);
+    setTimeout(function(){ mode='happy'; render(); }, 4400);
+  });
+  document.getElementById('selRow').addEventListener('click', function(e){
+    var btn = e.target.closest('.sel'); if (!btn) return;
+    document.querySelectorAll('.sel').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    type = btn.getAttribute('data-type');
+    mode='sleep'; render();
+  });
+
+  render();
+</script>
+</body>
+</html>

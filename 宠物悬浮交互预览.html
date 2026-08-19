@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>宠物悬浮交互预览</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    background: linear-gradient(160deg,#faf6f0,#f0e8dc); color:#2c1f14;
+    font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+    height:100vh; overflow:hidden; user-select:none; touch-action:none;
+  }
+  .page {
+    max-width:440px; margin:0 auto; height:100vh; position:relative;
+    padding:50px 16px 120px; overflow:hidden;
+  }
+  h1 { font-size:28px; font-weight:800; }
+  .sub { font-size:20px; color:#b09878; margin:6px 0 16px; }
+  .content {
+    background:#fff; border-radius:20px; padding:16px; border:1px solid rgba(180,140,100,.12);
+    box-shadow:0 4px 12px rgba(60,40,20,.05); margin-bottom:14px;
+  }
+  .row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #f0e8dc; }
+  .row:last-child { border-bottom:none; }
+  .icon { font-size:30px; }
+  .name { flex:1; font-size:24px; font-weight:600; }
+  .badge { font-size:20px; color:#8a5a2a; background:#f5ede0; padding:4px 12px; border-radius:12px; }
+  .tip {
+    font-size:20px; color:#b09878; line-height:1.6; margin-top:8px;
+  }
+  .tip b { color:#c87a3a; }
+
+  /* 悬浮宠物 */
+  #pet {
+    position:fixed; left:70%; top:55%; z-index:999;
+    width:96px; height:96px; cursor:grab;
+    transition: transform .15s ease;
+  }
+  #pet:active { cursor:grabbing; transform:scale(1.06); }
+  .pet-body { width:96px; height:96px; position:relative; }
+  .speech {
+    position:absolute; top:-36px; left:50%; transform:translateX(-50%);
+    background:#fff; border-radius:14px; padding:6px 12px; font-size:19px; font-weight:700;
+    color:#c87a3a; white-space:nowrap; box-shadow:0 2px 8px rgba(60,40,20,.12);
+  }
+  .speech::after {
+    content:''; position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
+    border-left:6px solid transparent; border-right:6px solid transparent; border-top:6px solid #fff;
+  }
+
+  .bottom-actions {
+    position:fixed; bottom:24px; left:0; right:0; max-width:440px; margin:0 auto;
+    display:flex; gap:12px; padding:0 16px;
+  }
+  .btn {
+    flex:1; padding:14px 0; border-radius:16px; border:none;
+    background:#fff; color:#c87a3a; font-size:22px; font-weight:700;
+    box-shadow:0 4px 12px rgba(60,40,20,.08); cursor:pointer;
+  }
+  .btn.active { background:#c87a3a; color:#fff; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>🐣 悬浮宠物交互预览</h1>
+  <div class="sub">像 GPT 桌宠那样：可拖动、可逗弄、有表情，不挡内容</div>
+
+  <div class="content">
+    <div class="row"><span class="icon">📖</span><span class="name">背单词 30 个</span><span class="badge">✓ 已完成</span></div>
+    <div class="row"><span class="icon">🏃</span><span class="name">运动 20 分钟</span><span class="badge">待完成</span></div>
+    <div class="row"><span class="icon">😴</span><span class="name">早睡 23:30</span><span class="badge">待完成</span></div>
+  </div>
+
+  <div class="tip">
+    <b>玩法：</b>拖动宠物移动位置 · 点它一下换个表情 · 连续点有惊喜 · 底部可切换陪伴/回窝睡觉
+  </div>
+</div>
+
+<div id="pet">
+  <div class="speech" id="speech">你好呀～</div>
+  <div class="pet-body" id="petBody"></div>
+</div>
+
+<div class="bottom-actions">
+  <button class="btn active" id="modeComp">陪伴模式</button>
+  <button class="btn" id="modeSleep">回窝睡觉</button>
+</div>
+
+<script>
+  var expressions = [
+    { name: 'happy',   draw: function() { return '<svg width="96" height="96" viewBox="0 0 100 100"><circle cx="50" cy="55" r="34" fill="#ffe3e8" stroke="#fff" stroke-width="6" filter="drop-shadow(0 3px 8px rgba(0,0,0,.15))"/><circle cx="50" cy="48" r="22" fill="#fff2f4"/><circle cx="42" cy="46" r="3.4" fill="#3a2a2a"/><circle cx="58" cy="46" r="3.4" fill="#3a2a2a"/><path d="M45 53 Q50 58 55 53" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="37" cy="53" r="3.4" fill="#ffb6c1"/><circle cx="63" cy="53" r="3.4" fill="#ffb6c1"/><path d="M50 22 Q50 13 43 15 Q50 9 57 15 Q50 13 50 22" fill="#9ad4a8"/></svg>'; }, speech: '今天也要加油鸭' },
+    { name: 'excited', draw: function() { return '<svg width="96" height="96" viewBox="0 0 100 100"><circle cx="50" cy="55" r="34" fill="#ffe3e8" stroke="#fff" stroke-width="6" filter="drop-shadow(0 3px 8px rgba(0,0,0,.15))"/><circle cx="50" cy="48" r="22" fill="#fff2f4"/><path d="M38 42 Q42 38 46 42" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M54 42 Q58 38 62 42" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M45 54 Q50 60 55 54" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="37" cy="53" r="3.4" fill="#ffb6c1"/><circle cx="63" cy="53" r="3.4" fill="#ffb6c1"/><text x="64" y="34" font-size="16">⭐</text><text x="22" y="30" font-size="14">✨</text><path d="M50 22 Q50 13 43 15 Q50 9 57 15 Q50 13 50 22" fill="#9ad4a8"/></svg>'; }, speech: '连击达成！太棒啦' },
+    { name: 'love',    draw: function() { return '<svg width="96" height="96" viewBox="0 0 100 100"><circle cx="50" cy="55" r="34" fill="#ffe3e8" stroke="#fff" stroke-width="6" filter="drop-shadow(0 3px 8px rgba(0,0,0,.15))"/><circle cx="50" cy="48" r="22" fill="#fff2f4"/><path d="M40 48 Q37 44 40 42" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M60 48 Q63 44 60 42" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M46 53 Q50 57 54 53" stroke="#3a2a2a" stroke-width="1.8" fill="none" stroke-linecap="round"/><text x="66" y="38" font-size="20">💕</text><circle cx="37" cy="53" r="3.4" fill="#ffb6c1"/><circle cx="63" cy="53" r="3.4" fill="#ffb6c1"/><path d="M50 22 Q50 13 43 15 Q50 9 57 15 Q50 13 50 22" fill="#9ad4a8"/></svg>'; }, speech: '最喜欢你啦' },
+    { name: 'sleepy',  draw: function() { return '<svg width="96" height="96" viewBox="0 0 100 100"><circle cx="50" cy="55" r="34" fill="#ffe3e8" stroke="#fff" stroke-width="6" filter="drop-shadow(0 3px 8px rgba(0,0,0,.15))"/><circle cx="50" cy="48" r="22" fill="#fff2f4"/><path d="M40 47 Q43 43 47 47" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M53 47 Q57 43 60 47" stroke="#3a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M47 54 Q50 55 53 54" stroke="#3a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/><text x="64" y="34" font-size="14" fill="#b09878">Zzz</text><circle cx="37" cy="53" r="3" fill="#ffb6c1" opacity=".6"/><circle cx="63" cy="53" r="3" fill="#ffb6c1" opacity=".6"/><path d="M50 22 Q50 13 43 15 Q50 9 57 15 Q50 13 50 22" fill="#9ad4a8"/></svg>'; }, speech: '有点困了…' }
+  ];
+  var idx = 0;
+  var tapCount = 0;
+  var petBody = document.getElementById('petBody');
+  var speech = document.getElementById('speech');
+
+  function render() {
+    petBody.innerHTML = expressions[idx].draw();
+    speech.textContent = expressions[idx].speech;
+  }
+  render();
+
+  var pet = document.getElementById('pet');
+  pet.addEventListener('click', function() {
+    tapCount++;
+    if (tapCount % 5 === 0) { idx = 1; speech.textContent = '别闹啦～再点我飞起来了'; }
+    else { idx = (idx + 1) % expressions.length; }
+    render();
+  });
+
+  // 拖动
+  var dragging = false, offX = 0, offY = 0;
+  pet.addEventListener('mousedown', start); document.addEventListener('mousemove', move); document.addEventListener('mouseup', end);
+  pet.addEventListener('touchstart', start, {passive:false}); document.addEventListener('touchmove', move, {passive:false}); document.addEventListener('touchend', end);
+  function start(e) {
+    dragging = true;
+    var p = e.touches ? e.touches[0] : e;
+    var rect = pet.getBoundingClientRect();
+    offX = p.clientX - rect.left; offY = p.clientY - rect.top;
+    e.preventDefault();
+  }
+  function move(e) {
+    if (!dragging) return;
+    var p = e.touches ? e.touches[0] : e;
+    var x = p.clientX - offX; var y = p.clientY - offY;
+    x = Math.max(0, Math.min(window.innerWidth - 96, x));
+    y = Math.max(0, Math.min(window.innerHeight - 96, y));
+    pet.style.left = x + 'px'; pet.style.top = y + 'px';
+    e.preventDefault();
+  }
+  function end() { dragging = false; }
+
+  // 模式切换
+  var compBtn = document.getElementById('modeComp');
+  var sleepBtn = document.getElementById('modeSleep');
+  compBtn.addEventListener('click', function() {
+    compBtn.classList.add('active'); sleepBtn.classList.remove('active');
+    pet.style.display = 'block';
+  });
+  sleepBtn.addEventListener('click', function() {
+    sleepBtn.classList.add('active'); compBtn.classList.remove('active');
+    pet.style.display = 'none';
+  });
+</script>
+</body>
+</html>

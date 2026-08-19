@@ -325,3 +325,20 @@
 .goal-item.custom {
   margin-top: 8px;
 }
+
+/* 召唤飞出动画 */
+.pet-stage.summon-fly .pet-emoji {
+  animation: summonFly .7s ease-in forwards;
+}
+@keyframes summonFly {
+  0% { transform: translate(0, 0) scale(1) rotate(0); opacity: 1; }
+  100% { transform: translate(120px, -60px) scale(.3) rotate(360deg); opacity: 0; }
+}
+.pet-out {
+  font-size: 90px;
+}
+.pet-out-tip {
+  font-size: 24px;
+  color: var(--txt2);
+  margin-top: 6px;
+}

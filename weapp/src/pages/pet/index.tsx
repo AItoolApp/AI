@@ -5,6 +5,7 @@ import { loadEnergy, spendEnergy } from '../../utils/storage'
 import { loadPet, savePet, defaultEgg, randomHatch, HATCH_ENERGY, PET_TYPES, PRESET_GOALS, loadGoals, saveGoals, loadCustomGoals, saveCustomGoals } from '../../utils/pet'
 import { loadTheme } from '../../utils/storage'
 import { getNavBarHeight } from '../../utils/safeArea'
+import FloatingPet from '../../components/FloatingPet'
 import './index.scss'
 
 interface State {
@@ -16,6 +17,7 @@ interface State {
   goals: string[]
   customGoals: string[]
   customGoalInput: string
+  summonFx: boolean
 }
 
 export default class PetPage extends Component<{}, State> {
@@ -27,7 +29,8 @@ export default class PetPage extends Component<{}, State> {
     feedBurst: 0,
     goals: [],
     customGoals: [],
-    customGoalInput: ''
+    customGoalInput: '',
+    summonFx: false
   }
 
   componentDidMount() { this.refresh() }
@@ -72,11 +75,15 @@ export default class PetPage extends Component<{}, State> {
   }
 
   summonCompanion() {
-    const pet = { ...this.state.pet, sleeping: false }
-    savePet(pet)
-    this.setState({ pet })
-    this.notifyPet()
-    wx.showToast({ title: '已召唤出来，它会跟着你切换页面陪伴', icon: 'none', duration: 2200 })
+    // 先在窝里播放旋转飞出动画，再真正切到陪伴状态
+    this.setState({ summonFx: true })
+    setTimeout(() => {
+      const pet = { ...this.state.pet, sleeping: false }
+      savePet(pet)
+      this.setState({ pet, summonFx: false })
+      this.notifyPet()
+      wx.showToast({ title: '它飞出来陪你啦，切换页面也会跟着', icon: 'none', duration: 2200 })
+    }, 700)
   }
 
   toggleGoal(key: string) {
@@ -138,11 +145,16 @@ export default class PetPage extends Component<{}, State> {
                 <Text className='peek-zzz'>Z z z</Text>
                 <Text className='peek-dream'>🌙 做着美梦呢…</Text>
               </View>
-            ) : (
-              <View className={`pet-stage ${pet.sleeping ? 'sleeping' : 'awake'}`}>
-                {pet.sleeping && <Text className='zzz'>Z z z</Text>}
+            ) : pet.sleeping || isEgg ? (
+              <View className={`pet-stage sleeping ${this.state.summonFx ? 'summon-fly' : ''}`}>
+                <Text className='zzz'>Z z z</Text>
                 <Text className='pet-emoji'>{emoji}</Text>
-                {pet.sleeping && <Text className='dream'>🌙</Text>}
+                <Text className='dream'>🌙</Text>
+              </View>
+            ) : (
+              <View className='pet-stage awake'>
+                <Text className='pet-emoji pet-out'>✨</Text>
+                <Text className='pet-out-tip'>它飞出去陪你啦</Text>
               </View>
             )}
           </View>
@@ -191,6 +203,8 @@ export default class PetPage extends Component<{}, State> {
             <Text className='fb-text'>他日必定破壳飞天</Text>
           </View>
         )}
+
+        <FloatingPet pet={this.state.pet} onUpdate={() => this.refresh()} />
 
         <View className='pet-actions'>
           <Button className='pet-btn' onClick={() => this.feed()}>🫳 投喂能量</Button>

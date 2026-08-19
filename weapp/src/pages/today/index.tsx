@@ -20,6 +20,7 @@ interface State {
   card: ContentCard
   cardExpanded: boolean
   burst: number
+  energy: number
 }
 
 export default class TodayPage extends Component<{}, State> {
@@ -32,7 +33,8 @@ export default class TodayPage extends Component<{}, State> {
     showIdentity: false,
     card: getTodayCard(),
     cardExpanded: false,
-    burst: 0
+    burst: 0,
+    energy: 0
   }
 
   componentDidMount() {
@@ -67,7 +69,7 @@ export default class TodayPage extends Component<{}, State> {
 
   loadHabits() {
     const data = loadData()
-    this.setState({ habits: data.habits, currentDate: todayStr() })
+    this.setState({ habits: data.habits, currentDate: todayStr(), energy: loadEnergy() })
   }
 
   toggleCheckin(id: number) {
@@ -93,10 +95,11 @@ export default class TodayPage extends Component<{}, State> {
 
     const nextHabits = habits.map(x => x.id === id ? { ...x, checkins: next } : x)
     let tip = wasChecked ? '已取消' : '打卡成功 🎉'
+    let newEnergy = loadEnergy()
     if (!wasChecked) {
       const before = loadEnergy()
-      const energy = awardEnergyOnceToday()
-      if (energy > before) tip = `打卡成功 🎉 能量+1（${energy}点）`
+      newEnergy = awardEnergyOnceToday()
+      if (newEnergy > before) tip = `⚡ 宠物能量+1，当前 ${newEnergy} 点`
       const streak = getStreak({ ...h, checkins: next })
       if ([7, 30, 100, 200, 365].includes(streak)) {
         tip = `🎉 连击 ${streak} 天！`
@@ -108,7 +111,7 @@ export default class TodayPage extends Component<{}, State> {
       }, 1600)
     }
     wx.showToast({ title: tip, icon: 'none', duration: 1800 })
-    this.setState({ habits: nextHabits })
+    this.setState({ habits: nextHabits, energy: newEnergy })
   }
 
   loadTheme() {
@@ -121,7 +124,7 @@ export default class TodayPage extends Component<{}, State> {
   }
 
   render() {
-    const { habits, currentDate, theme, identity, selected, showIdentity, card, cardExpanded } = this.state
+    const { habits, currentDate, theme, identity, selected, showIdentity, card, cardExpanded, energy } = this.state
     const now = new Date()
     const weekday = ['日','一','二','三','四','五','六'][now.getDay()]
     const dateStr = `${now.getMonth()+1}月${now.getDate()}日 周${weekday}`
@@ -137,6 +140,7 @@ export default class TodayPage extends Component<{}, State> {
           <View className='page-title'>今日打卡</View>
           <View className='header-meta'>
             <View className='tag-badge'>{dateStr}</View>
+            <View className='energy-badge' onClick={() => Taro.navigateTo({ url: '/pages/pet/index' })}>⚡ {energy}</View>
             {habits.length > 0 && (
               <Text className='summary-badge'>✓ {habits.filter(h => h.checkins && h.checkins[currentDate]).length}/{habits.length}</Text>
             )}

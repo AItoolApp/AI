@@ -173,3 +173,23 @@
 .pet-title {
   margin-bottom: 0;
 }
+
+.pet-guide {
+  background: var(--acc-light);
+  border-radius: 18px;
+  padding: 16px 18px;
+  margin-top: 14px;
+}
+.pet-guide-title {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--acc-txt);
+  margin-bottom: 6px;
+}
+.pet-guide-text {
+  display: block;
+  font-size: 22px;
+  color: var(--txt2);
+  line-height: 1.6;
+}

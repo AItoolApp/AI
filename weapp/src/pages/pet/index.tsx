@@ -97,6 +97,19 @@ export default class PetPage extends Component<{}, State> {
           {!isEgg && <Text className='pet-tip'>每天完成习惯打卡会自动投喂能量</Text>}
         </View>
 
+        <View className='pet-guide'>
+          <Text className='pet-guide-title'>💡 怎么获取能量和孵化值</Text>
+          {isEgg ? (
+            <Text className='pet-guide-text'>
+              每天完成任意习惯打卡，第一次打卡自动 +1 点能量；能量就是孵化值。当前试运行满 {HATCH_ENERGY} 点可孵化，正式版为 21 点。打卡后今日页右上角 ⚡ 数值会同步增加。
+            </Text>
+          ) : (
+            <Text className='pet-guide-text'>
+              每天完成习惯打卡会自动投喂能量，连续打卡 7 天进化一次，累计 30 天解锁换装。先坚持打卡，小可爱会一直陪你长大。
+            </Text>
+          )}
+        </View>
+
         <View className='pet-actions'>
           {isEgg && canHatch && (
             <Button className='pet-btn primary' onClick={() => this.hatch()}>✨ 孵化</Button>

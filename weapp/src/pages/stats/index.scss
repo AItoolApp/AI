@@ -106,3 +106,67 @@
   height: 60px;
   margin-bottom: 4px;
 }
+
+/* ─── 近7天趋势 ─── */
+.trend-card {
+  background: var(--card);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  padding: 20px 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--sh);
+}
+.trend-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 18px;
+}
+.trend-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--txt);
+}
+.trend-sub {
+  font-size: 20px;
+  color: var(--txt3);
+}
+.trend-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+}
+.trend-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.trend-val {
+  font-size: 18px;
+  color: var(--txt2);
+  font-weight: 600;
+}
+.trend-bar-track {
+  width: 100%;
+  height: 120px;
+  background: var(--acc-light);
+  border-radius: 10px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.trend-bar-fill {
+  width: 100%;
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(180deg, var(--acc), var(--acc2));
+  transition: height .6s ease;
+  min-height: 4px;
+}
+.trend-day {
+  font-size: 20px;
+  color: var(--txt3);
+  font-weight: 600;
+}

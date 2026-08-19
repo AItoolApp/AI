@@ -20,6 +20,8 @@ interface State {
   editColor: string
   editRestDays: number[]
   theme: string
+  pendingDelete: number | null
+  undoTimer: any
 }
 
 export default class ManagePage extends Component<{}, State> {
@@ -35,7 +37,9 @@ export default class ManagePage extends Component<{}, State> {
     editEmoji: EMOJIS[0],
     editColor: COLORS[0],
     editRestDays: [],
-    theme: 'latte'
+    theme: 'latte',
+    pendingDelete: null,
+    undoTimer: null
   }
 
   componentDidMount() { Taro.showShareMenu({ withShareTicket: true }); this.refresh() }
@@ -92,14 +96,28 @@ export default class ManagePage extends Component<{}, State> {
       content: '打卡记录也会一起删除，确定吗？',
       success: (res) => {
         if (res.confirm) {
-          const habits = this.state.habits.filter(h => h.id !== id)
-          removeHabitData(id) // 清理独立 checkins key（v1.1）
-          saveData({ habits, theme: this.state.theme })
-          this.setState({ habits })
-          wx.showToast({ title: '已删除', icon: 'none' })
+          this.setState({ pendingDelete: id })
+          if (this.state.undoTimer) clearTimeout(this.state.undoTimer)
+          const timer = setTimeout(() => {
+            this.doDelete(id)
+          }, 5000)
+          this.setState({ undoTimer: timer })
         }
       }
     })
+  }
+
+  undoDelete() {
+    if (this.state.undoTimer) clearTimeout(this.state.undoTimer)
+    this.setState({ pendingDelete: null, undoTimer: null })
+  }
+
+  doDelete(id: number) {
+    const habits = this.state.habits.filter(h => h.id !== id)
+    removeHabitData(id)
+    saveData({ habits, theme: this.state.theme })
+    this.setState({ habits, pendingDelete: null, undoTimer: null })
+    wx.showToast({ title: '已删除', icon: 'none' })
   }
 
   async submitFeedback() {
@@ -176,16 +194,29 @@ export default class ManagePage extends Component<{}, State> {
           </View>
         ) : (
           <ScrollView scrollY className='manage-list'>
-            {habits.map(h => (
-              <View key={h.id} className='m-item'>
-                <HabitIcon emoji={h.emoji} className='mi' imageClassName='mi-img' />
-                <Text className='mn'>{h.name}</Text>
-                <View className='ma'>
-                  <Button className='m-btn edit' onClick={() => this.openEdit(h)}>编辑</Button>
-                  <Button className='m-btn del' onClick={() => this.deleteHabit(h.id)}>删除</Button>
+            {habits.map(h => {
+              if (h.id === this.state.pendingDelete) {
+                return (
+                  <View key={h.id} className='m-item pending'>
+                    <HabitIcon emoji={h.emoji} className='mi' imageClassName='mi-img' />
+                    <Text className='mn'>已删除 · 5 秒内可恢复</Text>
+                    <View className='ma'>
+                      <Button className='m-btn edit' onClick={() => this.undoDelete()}>撤销</Button>
+                    </View>
+                  </View>
+                )
+              }
+              return (
+                <View key={h.id} className='m-item'>
+                  <HabitIcon emoji={h.emoji} className='mi' imageClassName='mi-img' />
+                  <Text className='mn'>{h.name}</Text>
+                  <View className='ma'>
+                    <Button className='m-btn edit' onClick={() => this.openEdit(h)}>编辑</Button>
+                    <Button className='m-btn del' onClick={() => this.deleteHabit(h.id)}>删除</Button>
+                  </View>
                 </View>
-              </View>
-            ))}
+              )
+            })}
           </ScrollView>
         )}
 

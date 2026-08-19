@@ -272,3 +272,8 @@
   width: 96px;
   height: 96px;
 }
+
+.m-item.pending {
+  opacity: .7;
+  border-style: dashed;
+}

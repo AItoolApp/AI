@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, Image } from '@tarojs/components'
-import { loadData, loadTheme } from '../../utils/storage'
+import { loadData, loadTheme, formatDate } from '../../utils/storage'
 import { calcStats } from '../../utils/stats'
 import { getNavBarHeight } from '../../utils/safeArea'
 import { HabitStats, ICON_MAP } from '../../utils/constants'
@@ -31,6 +31,28 @@ export default class StatsPage extends Component<{}, State> {
     const longestStreak = stats.length > 0 ? Math.max(...stats.map(s => s.longest)) : 0
     const avgRate = stats.length > 0 ? Math.round(stats.reduce((a, s) => a + s.month_rate, 0) / stats.length) : 0
 
+    // 近 7 天完成率趋势
+    const trend: { label: string; rate: number; total: number }[] = []
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      trend.push({ label: ['日','一','二','三','四','五','六'][d.getDay()], rate: 0, total: 0 })
+    }
+    if (stats.length > 0) {
+      const data = loadData()
+      const weekDays: string[] = []
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date()
+        d.setDate(d.getDate() - i)
+        weekDays.push(formatDate(d.getFullYear(), d.getMonth() + 1, d.getDate()))
+      }
+      weekDays.forEach((ds, idx) => {
+        const done = data.habits.filter(h => h.checkins && h.checkins[ds]).length
+        const rate = data.habits.length > 0 ? Math.round(done / data.habits.length * 100) : 0
+        trend[idx] = { label: trend[idx].label, rate, total: done }
+      })
+    }
+
     if (stats.length === 0) {
       return (
         <View className={`app-page theme-${this.state.theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
@@ -46,6 +68,24 @@ export default class StatsPage extends Component<{}, State> {
     return (
       <View className={`app-page theme-${this.state.theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
         <View className='page-title'>统计</View>
+
+        <View className='trend-card'>
+          <View className='trend-head'>
+            <Text className='trend-title'>近 7 天完成率</Text>
+            <Text className='trend-sub'>每天完成习惯数 / 总习惯数</Text>
+          </View>
+          <View className='trend-bars'>
+            {trend.map((t, idx) => (
+              <View key={idx} className='trend-col'>
+                <Text className='trend-val'>{t.rate}%</Text>
+                <View className='trend-bar-track'>
+                  <View className='trend-bar-fill' style={`height: ${Math.max(t.rate, 4)}%;`}></View>
+                </View>
+                <Text className='trend-day'>{t.label}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
 
         <View className='stats-grid'>
           <View className='stat-card'>

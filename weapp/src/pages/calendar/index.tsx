@@ -64,8 +64,12 @@ export default class CalendarPage extends Component<{}, State> {
   }
 
   openMakeUp(dateStr: string) {
-    if (!this.canMakeUp(dateStr)) {
-      wx.showToast({ title: '只能补签最近 3 天哦', icon: 'none', duration: 1200 })
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const dt = new Date(dateStr)
+    dt.setHours(0, 0, 0, 0)
+    if (dt.getTime() > today.getTime()) {
+      wx.showToast({ title: '未来的日子还没到哦', icon: 'none', duration: 1200 })
       return
     }
     this.setState({ makeUpDate: dateStr })
@@ -209,13 +213,18 @@ export default class CalendarPage extends Component<{}, State> {
         {makeUpDate && (
           <View className='makeup-overlay' onClick={() => this.setState({ makeUpDate: null })}>
             <View className='makeup-box' onClick={e => e.stopPropagation()}>
-              <View className='makeup-title'>📅 补签 · {makeUpDate}</View>
-              <View className='makeup-sub'>最近 3 天可补 · 当前 {loadEnergy()} 点能量 · 补签 1 次消耗 {MAKEUP_COST} 点</View>
+              <View className='makeup-title'>📅 {makeUpDate}</View>
+              <View className='makeup-sub'>
+                {this.canMakeUp(makeUpDate)
+                  ? `最近 3 天可补 · 当前 ${loadEnergy()} 点能量 · 补签 1 次消耗 ${MAKEUP_COST} 点`
+                  : '该日期仅查看详情，不支持补签'}
+              </View>
               <ScrollView scrollY className='makeup-list'>
                 {this.state.habits.map(h => {
                   const checked = !!(h.checkins && h.checkins[makeUpDate])
+                  const editable = this.canMakeUp(makeUpDate)
                   return (
-                    <View key={h.id} className='makeup-item' onClick={() => this.toggleMakeUp(h.id)}>
+                    <View key={h.id} className={`makeup-item ${editable ? '' : 'readonly'}`} onClick={() => editable && this.toggleMakeUp(h.id)}>
                       <HabitIcon emoji={h.emoji} className='makeup-emoji' imageClassName='makeup-emoji-img' />
                       <Text className='makeup-name'>{h.name}</Text>
                       <View className={`makeup-check ${checked ? 'checked' : ''}`}>{checked ? '✓' : ''}</View>

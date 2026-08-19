@@ -19,6 +19,7 @@ interface State {
   showIdentity: boolean
   card: ContentCard
   cardExpanded: boolean
+  burst: number
 }
 
 export default class TodayPage extends Component<{}, State> {
@@ -30,7 +31,8 @@ export default class TodayPage extends Component<{}, State> {
     selected: [],
     showIdentity: false,
     card: getTodayCard(),
-    cardExpanded: false
+    cardExpanded: false,
+    burst: 0
   }
 
   componentDidMount() {
@@ -95,8 +97,17 @@ export default class TodayPage extends Component<{}, State> {
       const before = loadEnergy()
       const energy = awardEnergyOnceToday()
       if (energy > before) tip = `打卡成功 🎉 能量+1（${energy}点）`
+      const streak = getStreak({ ...h, checkins: next })
+      if ([7, 30, 100, 200, 365].includes(streak)) {
+        tip = `🎉 连击 ${streak} 天！`
+      }
+      const burstAt = Date.now()
+      this.setState({ burst: burstAt })
+      setTimeout(() => {
+        this.setState(prev => prev.burst === burstAt ? { burst: 0 } : null)
+      }, 1600)
     }
-    wx.showToast({ title: tip, icon: 'none', duration: 1500 })
+    wx.showToast({ title: tip, icon: 'none', duration: 1800 })
     this.setState({ habits: nextHabits })
   }
 
@@ -200,6 +211,16 @@ export default class TodayPage extends Component<{}, State> {
               )
             })}
           </ScrollView>
+        )}
+
+        {/* 打卡庆祝彩蛋 */}
+        {this.state.burst > 0 && (
+          <View className='celebrate-burst'>
+            <Text className='cb-emoji cb-1'>🎉</Text>
+            <Text className='cb-emoji cb-2'>✨</Text>
+            <Text className='cb-emoji cb-3'>🌟</Text>
+            <Text className='cb-text'>太棒了！</Text>
+          </View>
         )}
 
         {/* 身份选择（可多选，可重新进入） */}

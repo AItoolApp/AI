@@ -19,14 +19,14 @@
 
 .mgr-actions {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
 }
 .mgr-pet { background: #fdf3e7; }
 .theme-btn {
-  padding: 20px 8px;
-  border-radius: 20px;
+  padding: 24px 12px;
+  border-radius: 24px;
   background: var(--card);
   border: 1px solid var(--border);
   color: var(--txt2);
@@ -55,10 +55,11 @@
 }
 .mgr-btn-text {
   color: var(--txt);
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   letter-spacing: .3px;
   text-align: center;
+  line-height: 1.4;
 }
 
 .manage-list { max-height: calc(100vh - 400px); }

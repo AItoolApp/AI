@@ -60,7 +60,10 @@ export default class PetPage extends Component<{}, State> {
 
     return (
       <View className={`app-page theme-${theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
-        <View className='page-title'>宠物小窝</View>
+        <View className='pet-top'>
+          <View className='pet-back' onClick={() => Taro.navigateBack()}>‹ 返回</View>
+          <View className='page-title pet-title'>宠物小窝</View>
+        </View>
 
         <View className={`nest-box ${pet.sleeping ? 'night' : 'day'} ${isEgg ? 'egg-mode' : ''}`}>
           <View className='nest-inner'>

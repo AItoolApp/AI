@@ -2,7 +2,7 @@ import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, Button, Input } from '@tarojs/components'
 import { loadEnergy, spendEnergy, loadIdentity } from '../../utils/storage'
-import { loadPet, savePet, defaultEgg, randomHatch, HATCH_ENERGY, PET_TYPES, PRESET_GOALS, loadGoals, saveGoals, loadCustomGoals, saveCustomGoals } from '../../utils/pet'
+import { loadPet, savePet, defaultEgg, randomHatch, HATCH_ENERGY, GROWTH_ENERGY, PET_TYPES, PRESET_GOALS, loadGoals, saveGoals, loadCustomGoals, saveCustomGoals } from '../../utils/pet'
 import { loadTheme } from '../../utils/storage'
 import { getNavBarHeight } from '../../utils/safeArea'
 import FloatingPet from '../../components/FloatingPet'
@@ -92,13 +92,24 @@ export default class PetPage extends Component<{}, State> {
       return
     }
 
-    this.setState({ energy: left })
+    // 孵化后：投喂 1 次 = 成长值 +1
+    const growthProgress = (pet.growthProgress || 0) + 1
+    const nextPet = { ...pet, growthProgress }
+    savePet(nextPet)
+    this.setState({ pet: nextPet, energy: left })
     const burstAt = Date.now()
     this.setState({ feedBurst: burstAt })
     setTimeout(() => {
       this.setState(prev => prev.feedBurst === burstAt ? { feedBurst: 0 } : null)
     }, 1800)
-    wx.showToast({ title: `🫳 投喂成功，还剩 ${left} 点能量，宠物陪伴你积蓄能量 ✨`, icon: 'none', duration: 2500 })
+    if (growthProgress >= GROWTH_ENERGY && pet.stage === 'baby') {
+      const adult = { ...nextPet, stage: 'adult' as const }
+      savePet(adult)
+      this.setState({ pet: adult })
+      wx.showToast({ title: `🎉 成长值满 ${GROWTH_ENERGY}，进化到成体！`, icon: 'none', duration: 2500 })
+    } else {
+      wx.showToast({ title: `🫳 投喂成功，成长值 ${growthProgress}/${GROWTH_ENERGY}，还剩 ${left} 点能量`, icon: 'none', duration: 2500 })
+    }
   }
 
   summonCompanion() {
@@ -193,14 +204,20 @@ export default class PetPage extends Component<{}, State> {
         <View className='pet-info'>
           <Text className='pet-name'>{isEgg ? '灵宠蛋' : petType?.name}</Text>
           <Text className='pet-stage'>{isEgg ? '孵化期' : pet.stage === 'baby' ? '幼体期' : '成体期'}</Text>
-          <Text className='pet-energy'>⚡ 能量 {energy} 点</Text>
-          {isEgg && (
-            <Text className='pet-progress'>
-              孵化值 {pet.hatchProgress || 0}/{HATCH_ENERGY} · 投喂 1 次 = 孵化值 +1（试运行，正式版 21）
-              {canHatch ? ' · 可以孵化啦！' : ` · 还差 ${Math.max(0, HATCH_ENERGY - (pet.hatchProgress || 0))} 点`}
-            </Text>
+          <Text className='pet-energy'>⚡ 能量 {energy} 点（手动投喂，不自动扣）</Text>
+          {isEgg ? (
+            <View className='pet-progress-box'>
+              <Text className='pet-progress'>孵化值 {pet.hatchProgress || 0}/{HATCH_ENERGY} · 投喂 1 次 = 孵化值 +1</Text>
+              <View className='pet-bar-track'><View className='pet-bar-fill' style={`width: ${Math.min(100, ((pet.hatchProgress || 0) / HATCH_ENERGY) * 100)}%;`}></View></View>
+              <Text className='pet-tip'>创建习惯/每日首卡赚能量 → 手动投喂 → 满 {HATCH_ENERGY} 点孵化</Text>
+            </View>
+          ) : (
+            <View className='pet-progress-box'>
+              <Text className='pet-progress'>成长值 {pet.growthProgress || 0}/{GROWTH_ENERGY} · 投喂 1 次 = 成长值 +1</Text>
+              <View className='pet-bar-track'><View className='pet-bar-fill' style={`width: ${Math.min(100, ((pet.growthProgress || 0) / GROWTH_ENERGY) * 100)}%;`}></View></View>
+              <Text className='pet-tip'>继续投喂到 {GROWTH_ENERGY} 点进化成体，能量靠打卡和新建习惯积累</Text>
+            </View>
           )}
-          {!isEgg && <Text className='pet-tip'>每天完成习惯打卡会自动投喂能量</Text>}
         </View>
 
         <View className='pet-guide'>
@@ -208,7 +225,7 @@ export default class PetPage extends Component<{}, State> {
           <View className='pet-guide-list'>
             <Text className='pet-guide-line'>① 每新建 1 个习惯：能量 +1（一次性）</Text>
             <Text className='pet-guide-line'>② 每天第一次完成打卡：能量 +1（每天最多 1 次）</Text>
-            <Text className='pet-guide-line'>③ 能量会自动投喂给灵宠蛋/宠物，右上角 ⚡ 可查看</Text>
+            <Text className='pet-guide-line'>③ 能量只积攒、不自动扣，需要你到宠物页手动投喂</Text>
             {isEgg && <Text className='pet-guide-line pet-guide-hot'>④ 满 {HATCH_ENERGY} 点是能量累加值，不是 7 个习惯、也不是必须 7 天</Text>}
           </View>
         </View>

@@ -9,6 +9,8 @@ export const PET_TYPES = [
 
 /** 试运行孵化值：正式版按规划改回 21 */
 export const HATCH_ENERGY = 7
+/** 孵化后的成长值：投喂累计满 30 可进化到成体 */
+export const GROWTH_ENERGY = 30
 
 export interface PetData {
   schemaVersion?: number
@@ -17,6 +19,8 @@ export interface PetData {
   sleeping: boolean
   /** 孵化值：投喂 1 次 +1，满 HATCH_ENERGY 可孵化 */
   hatchProgress?: number
+  /** 成长值：孵化后投喂 1 次 +1，满 GROWTH_ENERGY 进化 */
+  growthProgress?: number
   hatchedAt?: string
 }
 
@@ -30,7 +34,18 @@ export function loadPet(): PetData | null {
     const raw = Taro.getStorageSync(PET_KEY)
     if (!raw) return null
     const d = JSON.parse(raw) as PetData
-    return d && d.type ? d : null
+    if (!d || !d.type) return null
+    // 旧数据归一化，保证字段存在且单调
+    if (d.type === 'egg') {
+      if (typeof d.hatchProgress !== 'number' || d.hatchProgress < 0) d.hatchProgress = 0
+      d.growthProgress = 0
+    } else {
+      if (typeof d.hatchProgress !== 'number') d.hatchProgress = HATCH_ENERGY
+      if (typeof d.growthProgress !== 'number' || d.growthProgress < 0) d.growthProgress = 0
+    }
+    d.schemaVersion = PET_DATA_VERSION
+    savePet(d)
+    return d
   } catch (e) {
     return null
   }
@@ -46,7 +61,7 @@ export function savePet(pet: PetData): boolean {
 }
 
 export function defaultEgg(): PetData {
-  return { schemaVersion: PET_DATA_VERSION, type: 'egg', stage: 'egg', sleeping: true, hatchProgress: 0 }
+  return { schemaVersion: PET_DATA_VERSION, type: 'egg', stage: 'egg', sleeping: true, hatchProgress: 0, growthProgress: 0 }
 }
 
 export function randomHatch(): PetData {
@@ -58,6 +73,7 @@ export function randomHatch(): PetData {
     stage: 'baby',
     sleeping: true,
     hatchProgress: HATCH_ENERGY,
+    growthProgress: 0,
     hatchedAt: new Date().toISOString()
   }
 }

@@ -103,7 +103,7 @@ export default class TodayPage extends Component<{}, State> {
     if (!wasChecked) {
       const before = loadEnergy()
       newEnergy = awardEnergyOnceToday()
-      if (newEnergy > before) tip = `⚡ 能量+1 已自动投喂，当前 ${newEnergy} 点`
+      if (newEnergy > before) tip = `⚡ 能量+1，当前 ${newEnergy} 点，可去宠物页手动投喂`
       const streak = getStreak({ ...h, checkins: next })
       if ([7, 30, 100, 200, 365].includes(streak)) {
         tip = `🎉 连击 ${streak} 天！`

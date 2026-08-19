@@ -2,6 +2,8 @@ import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, Image } from '@tarojs/components'
 import { loadData, loadTheme, formatDate } from '../../utils/storage'
+import { loadPet, PetData } from '../../utils/pet'
+import FloatingPet from '../../components/FloatingPet'
 import { calcStats } from '../../utils/stats'
 import { getNavBarHeight } from '../../utils/safeArea'
 import { HabitStats, ICON_MAP } from '../../utils/constants'
@@ -11,17 +13,18 @@ import './index.scss'
 interface State {
   stats: HabitStats[]
   theme: string
+  pet: PetData | null
 }
 
 export default class StatsPage extends Component<{}, State> {
-  state: State = { stats: [], theme: 'latte' }
+  state: State = { stats: [], theme: 'latte', pet: null }
 
   componentDidMount() { Taro.showShareMenu({ withShareTicket: true }); this.refresh() }
   componentDidShow() { this.refresh(); Taro.eventCenter.trigger('pet-changed') }
 
   refresh() {
     const data = loadData()
-    this.setState({ stats: calcStats(data.habits), theme: loadTheme() })
+    this.setState({ stats: calcStats(data.habits), theme: loadTheme(), pet: loadPet() })
   }
 
   render() {
@@ -68,6 +71,7 @@ export default class StatsPage extends Component<{}, State> {
     return (
       <View className={`app-page theme-${this.state.theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
         <View className='page-title'>统计</View>
+        <FloatingPet pet={this.state.pet} onUpdate={() => this.refresh()} />
 
         <View className='trend-card'>
           <View className='trend-head'>

@@ -2,6 +2,8 @@ import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, Button, Input, Textarea, ScrollView, Label, Image } from '@tarojs/components'
 import { loadData, saveData, loadTheme, saveTheme, removeHabitData, saveIdentity, addHabitBonusEnergy } from '../../utils/storage'
+import { loadPet, PetData } from '../../utils/pet'
+import FloatingPet from '../../components/FloatingPet'
 import { EMOJIS, COLORS, THEMES, WEEKDAYS, Habit, CUSTOM_ICON_KEYS, ICON_MAP } from '../../utils/constants'
 import { getNavBarHeight } from '../../utils/safeArea'
 import HabitIcon from '../../components/HabitIcon'
@@ -24,6 +26,7 @@ interface State {
   theme: string
   pendingDeletes: number[]
   undoTimer: any
+  pet: PetData | null
 }
 
 export default class ManagePage extends Component<{}, State> {
@@ -41,7 +44,8 @@ export default class ManagePage extends Component<{}, State> {
     editRestDays: [],
     theme: 'latte',
     pendingDeletes: [],
-    undoTimer: null
+    undoTimer: null,
+    pet: null
   }
 
   componentDidMount() { Taro.showShareMenu({ withShareTicket: true }); this.refresh() }
@@ -49,7 +53,7 @@ export default class ManagePage extends Component<{}, State> {
 
   refresh() {
     const data = loadData()
-    this.setState({ habits: data.habits, theme: loadTheme() })
+    this.setState({ habits: data.habits, theme: loadTheme(), pet: loadPet() })
   }
 
   openAdd() {
@@ -178,6 +182,7 @@ export default class ManagePage extends Component<{}, State> {
     return (
       <View className={`app-page theme-${theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
         <View className='page-title'>管理</View>
+        <FloatingPet pet={this.state.pet} onUpdate={() => this.refresh()} />
 
         <Button className='add-btn' onClick={() => this.openAdd()}>+ 添加新习惯</Button>
 

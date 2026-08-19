@@ -2,6 +2,8 @@ import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, ScrollView } from '@tarojs/components'
 import { loadData, loadTheme, saveHabitCheckins, loadEnergy, spendEnergy, refundEnergy, MAKEUP_COST } from '../../utils/storage'
+import { loadPet, PetData } from '../../utils/pet'
+import FloatingPet from '../../components/FloatingPet'
 import { getCheckinCounts, getStreak } from '../../utils/stats'
 import { getNavBarHeight } from '../../utils/safeArea'
 import { WEEKDAYS, Habit } from '../../utils/constants'
@@ -16,6 +18,7 @@ interface State {
   theme: string
   makeUpDate: string | null
   makeUpUnlocked: boolean
+  pet: PetData | null
 }
 
 function fmt(d: Date): string {
@@ -30,7 +33,8 @@ export default class CalendarPage extends Component<{}, State> {
     habits: [],
     theme: 'latte',
     makeUpDate: null,
-    makeUpUnlocked: false
+    makeUpUnlocked: false,
+    pet: null
   }
 
   componentDidMount() { Taro.showShareMenu({ withShareTicket: true }); this.refresh() }
@@ -44,7 +48,8 @@ export default class CalendarPage extends Component<{}, State> {
       habits: data.habits,
       checkinMap: getCheckinCounts(data.habits),
       theme: loadTheme(),
-      makeUpUnlocked: totalCheckins >= 21
+      makeUpUnlocked: totalCheckins >= 21,
+      pet: loadPet()
     })
   }
 
@@ -218,6 +223,8 @@ export default class CalendarPage extends Component<{}, State> {
             })()}
           </View>
         )}
+
+        <FloatingPet pet={this.state.pet} onUpdate={() => this.refresh()} />
 
         {/* 补签面板 */}
         {makeUpDate && (

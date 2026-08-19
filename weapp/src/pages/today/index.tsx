@@ -8,6 +8,8 @@ import { loadData, saveHabitCheckins, todayStr, loadTheme, loadIdentity, saveIde
 import { getTodayCard, IDENTITIES, ContentCard } from '../../utils/content'
 import { getCardBg } from '../../utils/cardTheme'
 import { getNavBarHeight } from '../../utils/safeArea'
+import { loadPet, PetData } from '../../utils/pet'
+import FloatingPet from '../../components/FloatingPet'
 import './index.scss'
 
 interface State {
@@ -21,6 +23,7 @@ interface State {
   cardExpanded: boolean
   burst: number
   energy: number
+  pet: PetData | null
 }
 
 export default class TodayPage extends Component<{}, State> {
@@ -34,7 +37,8 @@ export default class TodayPage extends Component<{}, State> {
     card: getTodayCard(),
     cardExpanded: false,
     burst: 0,
-    energy: 0
+    energy: 0,
+    pet: null
   }
 
   componentDidMount() {
@@ -69,7 +73,7 @@ export default class TodayPage extends Component<{}, State> {
 
   loadHabits() {
     const data = loadData()
-    this.setState({ habits: data.habits, currentDate: todayStr(), energy: loadEnergy() })
+    this.setState({ habits: data.habits, currentDate: todayStr(), energy: loadEnergy(), pet: loadPet() })
   }
 
   toggleCheckin(id: number) {
@@ -226,6 +230,8 @@ export default class TodayPage extends Component<{}, State> {
             <Text className='cb-text'>太棒了！</Text>
           </View>
         )}
+
+        <FloatingPet pet={this.state.pet} onUpdate={() => this.loadHabits()} />
 
         {/* 身份选择（可多选，可重新进入） */}
         {showIdentity && (

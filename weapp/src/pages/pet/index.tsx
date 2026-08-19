@@ -76,10 +76,7 @@ export default class PetPage extends Component<{}, State> {
     savePet(pet)
     this.setState({ pet })
     this.notifyPet()
-    wx.showToast({ title: '已召唤出来陪伴，回今日页看看', icon: 'none', duration: 2000 })
-    setTimeout(() => {
-      Taro.switchTab({ url: '/pages/today/index' })
-    }, 900)
+    wx.showToast({ title: '已召唤出来，它会跟着你切换页面陪伴', icon: 'none', duration: 2200 })
   }
 
   toggleGoal(key: string) {

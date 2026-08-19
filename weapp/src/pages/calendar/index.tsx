@@ -15,6 +15,7 @@ interface State {
   habits: Habit[]
   theme: string
   makeUpDate: string | null
+  makeUpUnlocked: boolean
 }
 
 function fmt(d: Date): string {
@@ -28,7 +29,8 @@ export default class CalendarPage extends Component<{}, State> {
     checkinMap: {},
     habits: [],
     theme: 'latte',
-    makeUpDate: null
+    makeUpDate: null,
+    makeUpUnlocked: false
   }
 
   componentDidMount() { Taro.showShareMenu({ withShareTicket: true }); this.refresh() }
@@ -36,7 +38,14 @@ export default class CalendarPage extends Component<{}, State> {
 
   refresh() {
     const data = loadData()
-    this.setState({ habits: data.habits, checkinMap: getCheckinCounts(data.habits), theme: loadTheme() })
+    // 补签后期解锁：累计打卡 21 次后开放（宠物养成规划 §4）
+    const totalCheckins = data.habits.reduce((a, h) => a + Object.keys(h.checkins || {}).length, 0)
+    this.setState({
+      habits: data.habits,
+      checkinMap: getCheckinCounts(data.habits),
+      theme: loadTheme(),
+      makeUpUnlocked: totalCheckins >= 21
+    })
   }
 
   prevMonth() {
@@ -54,6 +63,7 @@ export default class CalendarPage extends Component<{}, State> {
   }
 
   canMakeUp(dateStr: string): boolean {
+    if (!this.state.makeUpUnlocked) return false
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const dt = new Date(dateStr)
@@ -217,7 +227,9 @@ export default class CalendarPage extends Component<{}, State> {
               <View className='makeup-sub'>
                 {this.canMakeUp(makeUpDate)
                   ? `最近 3 天可补 · 当前 ${loadEnergy()} 点能量 · 补签 1 次消耗 ${MAKEUP_COST} 点`
-                  : '该日期仅查看详情，不支持补签'}
+                  : this.state.makeUpUnlocked
+                    ? '该日期仅查看详情，不支持补签'
+                    : '累计打卡 21 天后解锁补签，先坚持一下吧'}
               </View>
               <ScrollView scrollY className='makeup-list'>
                 {this.state.habits.map(h => {

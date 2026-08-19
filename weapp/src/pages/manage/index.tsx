@@ -7,6 +7,8 @@ import { getNavBarHeight } from '../../utils/safeArea'
 import HabitIcon from '../../components/HabitIcon'
 import './index.scss'
 
+let undoTimer: any = null
+
 interface State {
   habits: Habit[]
   showModal: boolean
@@ -97,28 +99,33 @@ export default class ManagePage extends Component<{}, State> {
       content: '打卡记录也会一起删除，确定吗？',
       success: (res) => {
         if (res.confirm) {
+          if (undoTimer) clearTimeout(undoTimer)
           this.setState({ pendingDelete: id })
-          if (this.state.undoTimer) clearTimeout(this.state.undoTimer)
-          const timer = setTimeout(() => {
+          undoTimer = setTimeout(() => {
+            undoTimer = null
             this.doDelete(id)
           }, 5000)
-          this.setState({ undoTimer: timer })
         }
       }
     })
   }
 
   undoDelete() {
-    if (this.state.undoTimer) clearTimeout(this.state.undoTimer)
-    this.setState({ pendingDelete: null, undoTimer: null })
+    if (undoTimer) clearTimeout(undoTimer)
+    undoTimer = null
+    this.setState({ pendingDelete: null })
   }
 
   doDelete(id: number) {
     const habits = this.state.habits.filter(h => h.id !== id)
     removeHabitData(id)
     saveData({ habits, theme: this.state.theme })
-    this.setState({ habits, pendingDelete: null, undoTimer: null })
+    this.setState({ habits, pendingDelete: null })
     wx.showToast({ title: '已删除', icon: 'none' })
+  }
+
+  componentWillUnmount() {
+    if (undoTimer) clearTimeout(undoTimer)
   }
 
   async submitFeedback() {

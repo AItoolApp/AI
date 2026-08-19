@@ -2,7 +2,7 @@ import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, Button } from '@tarojs/components'
 import { loadEnergy } from '../../utils/storage'
-import { loadPet, savePet, defaultEgg, randomHatch, HATCH_ENERGY, PET_TYPES } from '../../utils/pet'
+import { loadPet, savePet, defaultEgg, randomHatch, HATCH_ENERGY, PET_TYPES, PRESET_GOALS, loadGoals, saveGoals } from '../../utils/pet'
 import { loadTheme } from '../../utils/storage'
 import { getNavBarHeight } from '../../utils/safeArea'
 import './index.scss'
@@ -12,6 +12,8 @@ interface State {
   energy: number
   theme: string
   peek: boolean
+  feedBurst: number
+  goals: string[]
 }
 
 export default class PetPage extends Component<{}, State> {
@@ -19,7 +21,9 @@ export default class PetPage extends Component<{}, State> {
     pet: defaultEgg(),
     energy: 0,
     theme: 'latte',
-    peek: false
+    peek: false,
+    feedBurst: 0,
+    goals: []
   }
 
   componentDidMount() { this.refresh() }
@@ -29,7 +33,8 @@ export default class PetPage extends Component<{}, State> {
     this.setState({
       pet: loadPet() || defaultEgg(),
       energy: loadEnergy(),
-      theme: loadTheme()
+      theme: loadTheme(),
+      goals: loadGoals()
     })
   }
 
@@ -37,6 +42,37 @@ export default class PetPage extends Component<{}, State> {
     const pet = { ...this.state.pet, sleeping: !this.state.pet.sleeping }
     savePet(pet)
     this.setState({ pet, peek: false })
+  }
+
+  feed() {
+    const { energy } = this.state
+    if (energy <= 0) {
+      wx.showToast({ title: '还没有能量，先打卡或新建习惯赚能量吧', icon: 'none', duration: 2000 })
+      return
+    }
+    const burstAt = Date.now()
+    this.setState({ feedBurst: burstAt })
+    setTimeout(() => {
+      this.setState(prev => prev.feedBurst === burstAt ? { feedBurst: 0 } : null)
+    }, 1800)
+    wx.showToast({ title: '🫳 投喂成功！宠物陪伴你积蓄能量，他日必定破壳飞天 ✨', icon: 'none', duration: 2500 })
+  }
+
+  summonCompanion() {
+    const pet = { ...this.state.pet, sleeping: false }
+    savePet(pet)
+    this.setState({ pet })
+    wx.showToast({ title: '已召唤出来陪伴，回今日页看看', icon: 'none', duration: 2000 })
+    setTimeout(() => {
+      Taro.switchTab({ url: '/pages/today/index' })
+    }, 800)
+  }
+
+  toggleGoal(key: string) {
+    const { goals } = this.state
+    const next = goals.includes(key) ? goals.filter(g => g !== key) : [...goals, key]
+    saveGoals(next)
+    this.setState({ goals: next })
   }
 
   hatch() {
@@ -119,7 +155,16 @@ export default class PetPage extends Component<{}, State> {
           </View>
         </View>
 
+        {/* 投喂庆祝 */}
+        {this.state.feedBurst > 0 && (
+          <View className='feed-burst'>
+            <Text className='fb-emoji'>🫳✨</Text>
+            <Text className='fb-text'>他日必定破壳飞天</Text>
+          </View>
+        )}
+
         <View className='pet-actions'>
+          <Button className='pet-btn' onClick={() => this.feed()}>🫳 投喂能量</Button>
           {isEgg && canHatch && (
             <Button className='pet-btn primary' onClick={() => this.hatch()}>✨ 孵化</Button>
           )}
@@ -129,6 +174,27 @@ export default class PetPage extends Component<{}, State> {
           <Button className='pet-btn' onClick={() => this.toggleSleep()}>
             {pet.sleeping ? '☀️ 叫醒' : '🌙 回去睡觉'}
           </Button>
+          {!isEgg && (
+            <Button className='pet-btn primary' onClick={() => this.summonCompanion()}>✨ 召唤陪伴</Button>
+          )}
+        </View>
+
+        {/* 学习小目标 */}
+        <View className='pet-guide'>
+          <Text className='pet-guide-title'>🎯 学习小目标（可多选）</Text>
+          <Text className='pet-guide-text'>选择你想挑战的小目标，后续会显示完成进度。</Text>
+          <View className='goal-list'>
+            {PRESET_GOALS.map(g => {
+              const on = this.state.goals.includes(g.key)
+              return (
+                <View key={g.key} className={`goal-item ${on ? 'on' : ''}`} onClick={() => this.toggleGoal(g.key)}>
+                  <Text className='goal-emoji'>{g.emoji}</Text>
+                  <Text className='goal-name'>{g.name}</Text>
+                  <View className={`goal-check ${on ? 'checked' : ''}`}>{on ? '✓' : ''}</View>
+                </View>
+              )
+            })}
+          </View>
         </View>
 
         <View className='pet-footer'>泡泡玛特风 · 正式形象逐步替换中</View>

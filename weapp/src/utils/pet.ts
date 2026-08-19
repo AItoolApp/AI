@@ -53,3 +53,34 @@ export function randomHatch(): PetData {
     hatchedAt: new Date().toISOString()
   }
 }
+
+/* ─── 学习小目标（英语/成长预设）─── */
+
+export const PRESET_GOALS = [
+  { key: 'oral', name: '第一次英语口语交流', emoji: '🗣️' },
+  { key: 'book', name: '读完一本英文原版书', emoji: '📖' },
+  { key: 'movie', name: '无字幕看一部英文电影', emoji: '🎬' },
+  { key: 'abroad', name: '出国旅行用英语点餐问路', emoji: '✈️' }
+]
+
+const GOALS_KEY = 'habit_goals'
+
+export function loadGoals(): string[] {
+  try {
+    const raw = Taro.getStorageSync(GOALS_KEY)
+    if (!raw) return []
+    const arr = JSON.parse(raw)
+    return Array.isArray(arr) ? arr : []
+  } catch (e) {
+    return []
+  }
+}
+
+export function saveGoals(goals: string[]): boolean {
+  try {
+    Taro.setStorageSync(GOALS_KEY, JSON.stringify(goals))
+    return true
+  } catch (e) {
+    return false
+  }
+}

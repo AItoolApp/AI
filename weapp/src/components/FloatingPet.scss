@@ -1,0 +1,49 @@
+.floating-pet {
+  position: fixed;
+  right: 20px;
+  bottom: 140px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.fp-bubble {
+  background: #fff;
+  border-radius: 14px;
+  padding: 6px 12px;
+  font-size: 20px;
+  color: #c87a3a;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(60,40,20,.12);
+  white-space: nowrap;
+}
+.fp-body {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(60,40,20,.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fpBreathe 3s ease-in-out infinite;
+}
+.fp-emoji {
+  font-size: 52px;
+}
+.fp-sleep {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(60,40,20,.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+@keyframes fpBreathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}

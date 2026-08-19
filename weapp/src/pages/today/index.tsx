@@ -3,9 +3,11 @@ import Taro from '@tarojs/taro'
 import { View, Text, Button, ScrollView, Image } from '@tarojs/components'
 import { Habit, ICON_MAP } from '../../utils/constants'
 import HabitIcon from '../../components/HabitIcon'
+import FloatingPet from '../../components/FloatingPet'
 import { getStreak } from '../../utils/stats'
 import { loadData, saveHabitCheckins, todayStr, loadTheme, loadIdentity, saveIdentity, loadEnergy, awardEnergyOnceToday } from '../../utils/storage'
 import { getTodayCard, IDENTITIES, ContentCard } from '../../utils/content'
+import { loadPet, PetData } from '../../utils/pet'
 import { getCardBg } from '../../utils/cardTheme'
 import { getNavBarHeight } from '../../utils/safeArea'
 import './index.scss'
@@ -21,6 +23,7 @@ interface State {
   cardExpanded: boolean
   burst: number
   energy: number
+  pet: PetData | null
 }
 
 export default class TodayPage extends Component<{}, State> {
@@ -34,7 +37,8 @@ export default class TodayPage extends Component<{}, State> {
     card: getTodayCard(),
     cardExpanded: false,
     burst: 0,
-    energy: 0
+    energy: 0,
+    pet: null
   }
 
   componentDidMount() {
@@ -69,7 +73,7 @@ export default class TodayPage extends Component<{}, State> {
 
   loadHabits() {
     const data = loadData()
-    this.setState({ habits: data.habits, currentDate: todayStr(), energy: loadEnergy() })
+    this.setState({ habits: data.habits, currentDate: todayStr(), energy: loadEnergy(), pet: loadPet() })
   }
 
   toggleCheckin(id: number) {
@@ -140,15 +144,7 @@ export default class TodayPage extends Component<{}, State> {
           <View className='page-title'>今日打卡</View>
           <View className='header-meta'>
             <View className='tag-badge'>{dateStr}</View>
-            <View className='energy-badge' onClick={() => {
-              wx.showModal({
-                title: '⚡ 宠物能量',
-                content: `当前 ${energy} 点能量，已自动投喂给宠物/灵宠蛋。\n\n能量来源：\n· 每新建 1 个习惯 +1\n· 每天第一次打卡 +1\n\n满 7 点可孵化（试运行）。`,
-                confirmText: '去小窝看看',
-                cancelText: '继续打卡',
-                success: (res) => { if (res.confirm) Taro.navigateTo({ url: '/pages/pet/index' }) }
-              })
-            }}>⚡ {energy}</View>
+            <View className='energy-badge' onClick={() => Taro.navigateTo({ url: '/pages/pet/index' })}>⚡ {energy}</View>
             {habits.length > 0 && (
               <Text className='summary-badge'>✓ {habits.filter(h => h.checkins && h.checkins[currentDate]).length}/{habits.length}</Text>
             )}
@@ -234,6 +230,9 @@ export default class TodayPage extends Component<{}, State> {
             <Text className='cb-text'>太棒了！</Text>
           </View>
         )}
+
+        {/* 悬浮陪伴宠物 */}
+        <FloatingPet pet={this.state.pet} onUpdate={() => this.loadHabits()} />
 
         {/* 身份选择（可多选，可重新进入） */}
         {showIdentity && (

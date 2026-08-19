@@ -209,3 +209,78 @@
   color: var(--acc-txt);
   font-weight: 700;
 }
+
+/* 投喂庆祝 */
+.feed-burst {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 160;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.fb-emoji {
+  font-size: 80px;
+  animation: fbPop 1.6s ease-out forwards;
+}
+.fb-text {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--acc);
+  animation: fbPop 1.6s ease-out forwards;
+}
+@keyframes fbPop {
+  0% { transform: scale(.3); opacity: 0; }
+  30% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1) translateY(-30px); opacity: 0; }
+}
+
+/* 学习小目标 */
+.goal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.goal-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--bg);
+  border: 2px solid transparent;
+}
+.goal-item.on {
+  border-color: var(--acc);
+  background: var(--acc-light);
+}
+.goal-emoji {
+  font-size: 34px;
+  width: 44px;
+  text-align: center;
+}
+.goal-name {
+  flex: 1;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--txt);
+}
+.goal-check {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #fff;
+}
+.goal-check.checked {
+  background: var(--acc);
+  border-color: var(--acc);
+}

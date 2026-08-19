@@ -15,54 +15,72 @@
   body {
     background:var(--bg);
     color:var(--txt);
-    font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+    font-family:-apple-system,'SF Pro Display',BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
     max-width:420px; margin:0 auto; min-height:100vh;
     padding:48px 16px 120px;
+    letter-spacing:.2px;
   }
   .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
-  .title { font-size:34px; font-weight:800; }
+  .title { font-size:34px; font-weight:800; letter-spacing:-.5px; }
   .badge { font-size:20px; color:var(--acc-txt); background:var(--acc-light); padding:6px 14px; border-radius:12px; }
   .summary { font-size:22px; color:var(--acc-txt); margin-bottom:12px; }
 
   .kcard {
-    background:var(--card); border:1px solid var(--border); border-radius:20px;
-    padding:18px; margin-bottom:14px; box-shadow:0 1px 3px rgba(60,40,20,.06), 0 4px 12px rgba(60,40,20,.05);
+    background:var(--card); border:1px solid var(--border); border-radius:24px;
+    padding:20px; margin-bottom:16px; box-shadow:0 1px 3px rgba(60,40,20,.06), 0 4px 12px rgba(60,40,20,.05);
     position:relative; overflow:hidden; cursor:pointer;
   }
-  .kcard::after { content:''; position:absolute; top:-20px; right:-20px; width:90px; height:90px; border-radius:50%; background:radial-gradient(circle,var(--acc-light),transparent 70%); }
+  .kcard::before {
+    content:''; position:absolute; top:-40%; left:-20%; width:140%; height:140%; z-index:0;
+    background: radial-gradient(circle at 25% 20%, rgba(255,220,180,.35), transparent 45%),
+                radial-gradient(circle at 80% 30%, rgba(180,220,255,.35), transparent 45%),
+                radial-gradient(circle at 60% 90%, rgba(200,240,200,.3), transparent 45%);
+    animation: kcFloat 8s ease-in-out infinite;
+  }
+  @keyframes kcFloat { 0%,100% { transform:translate(0,0) scale(1);} 50% { transform:translate(2%,3%) scale(1.05);} }
+  .kcard > * { position:relative; z-index:1; }
   .ktop { display:flex; justify-content:space-between; align-items:center; }
   .kbadge { font-size:20px; font-weight:600; color:var(--acc-txt); }
   .kmore { font-size:20px; color:var(--txt3); }
-  .ktitle { font-size:30px; font-weight:800; margin:10px 0 6px; }
-  .khook { font-size:25px; color:var(--txt2); line-height:1.5; }
-  .khighlight { font-size:26px; font-weight:700; color:var(--acc-txt); background:var(--acc-light); padding:10px 14px; border-radius:12px; line-height:1.5; margin-bottom:8px; }
-  .ktext { font-size:25px; color:var(--txt); line-height:1.6; }
+  .ktitle { font-size:32px; font-weight:800; margin:12px 0 8px; letter-spacing:.5px; }
+  .khook { font-size:26px; color:var(--txt2); line-height:1.55; font-weight:500; }
+  .khighlight { font-size:27px; font-weight:800; color:var(--acc-txt); background:var(--acc-light); padding:12px 16px; border-radius:14px; line-height:1.5; margin-bottom:10px; }
+  .ktext { font-size:26px; color:var(--txt); line-height:1.7; font-weight:500; }
   .ksource { font-size:20px; color:var(--txt3); text-align:right; margin-top:6px; }
-  .kbtn { display:inline-block; background:var(--acc); color:#fff; font-size:22px; border-radius:12px; padding:10px 20px; margin-top:10px; }
   .ktip { font-size:20px; color:var(--acc-txt); margin-top:10px; }
 
-  .habit { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; box-shadow:0 1px 3px rgba(60,40,20,.06); }
-  .hemoji { font-size:34px; }
+  .habit { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:16px 18px; margin-bottom:12px; display:flex; align-items:center; gap:16px; box-shadow:0 1px 3px rgba(60,40,20,.06); }
+  .hemoji { font-size:40px; width:56px; text-align:center; }
   .hinfo { flex:1; }
-  .hname { font-size:28px; font-weight:600; }
-  .hmeta { font-size:20px; color:var(--txt2); margin-top:4px; }
+  .hname { font-size:28px; font-weight:700; }
+  .hmeta { font-size:22px; color:var(--txt3); margin-top:4px; }
   .streak { display:inline-block; font-size:20px; font-weight:600; color:var(--acc); margin-left:10px; padding:2px 10px; background:var(--acc-light); border-radius:10px; }
   .check { width:48px; height:48px; border-radius:50%; border:2px solid var(--acc); display:flex; align-items:center; justify-content:center; font-size:28px; color:#fff; }
   .check.on { background:var(--acc); }
 
   .identity { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; }
-  .ibox { width:84%; background:var(--card); border-radius:28px; padding:32px 24px 24px; max-height:86vh; overflow:auto; }
-  .ititle { font-size:34px; font-weight:700; text-align:center; }
-  .isub { font-size:22px; color:var(--txt3); text-align:center; margin:8px 0 20px; }
-  .iitem { display:flex; align-items:center; gap:16px; padding:16px; border-radius:18px; background:var(--acc-light); margin-bottom:12px; cursor:pointer; border:2px solid transparent; }
-  .iitem.on { border-color:var(--acc); }
-  .iemoji { font-size:44px; }
-  .iinfo { flex:1; }
-  .iname { font-size:28px; font-weight:700; }
-  .idesc { font-size:20px; color:var(--txt2); }
-  .icheck { width:44px; height:44px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:28px; color:#fff; }
+  .ibox { width:90%; max-width:640px; background:var(--card); border-radius:28px; padding:32px 20px 24px; max-height:88vh; overflow:auto; }
+  .ititle { font-size:36px; font-weight:800; text-align:center; letter-spacing:.5px; }
+  .isub { font-size:22px; color:var(--txt3); text-align:center; margin:10px 0 22px; }
+  .itags { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; }
+  .itag {
+    position:relative; padding:16px 14px; border-radius:24px; border:2px solid transparent;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    min-width:130px; flex:1 1 40%; cursor:pointer;
+    box-shadow:0 2px 8px rgba(60,40,20,.04);
+  }
+  .itag.t0 { background:#fdeef0; transform:rotate(-1.5deg); }
+  .itag.t1 { background:#eaf4ee; transform:rotate(1.2deg); }
+  .itag.t2 { background:#eef2fd; transform:rotate(-.8deg); }
+  .itag.t3 { background:#f6eefd; transform:rotate(1.6deg); }
+  .itag.t4 { background:#fdf3e7; transform:rotate(-1.2deg); }
+  .itag.on { border-color:var(--acc); }
+  .iemoji { font-size:48px; line-height:1; }
+  .iname { font-size:27px; font-weight:800; }
+  .idesc { font-size:20px; color:var(--txt2); text-align:center; line-height:1.4; }
+  .icheck { position:absolute; top:8px; right:8px; width:38px; height:38px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:24px; color:#fff; }
   .icheck.on { background:var(--acc); border-color:var(--acc); }
-  .ibtn { display:block; width:100%; margin-top:16px; background:var(--acc); color:#fff; font-size:26px; border:none; border-radius:14px; padding:14px; cursor:pointer; }
+  .ibtn { display:block; width:100%; margin-top:22px; background:var(--acc); color:#fff; font-size:26px; font-weight:700; border:none; border-radius:14px; padding:14px; cursor:pointer; }
   .iskip { margin-top:12px; text-align:center; color:var(--txt3); font-size:22px; cursor:pointer; }
   .note { margin-top:24px; padding:16px; background:var(--ok-light); border-radius:16px; font-size:20px; color:var(--txt2); line-height:1.6; }
 </style>
@@ -91,55 +109,47 @@
 
   <div class="habit">
     <div class="hemoji">📖</div>
-    <div class="hinfo">
-      <div class="hname">背单词 30 个</div>
-      <div class="hmeta">✓ 已完成 <span class="streak">🔥 3天</span></div>
-    </div>
+    <div class="hinfo"><div class="hname">背单词 30 个</div><div class="hmeta">✓ 已完成 <span class="streak">🔥 3天</span></div></div>
     <div class="check on">✓</div>
   </div>
   <div class="habit">
     <div class="hemoji">🏃</div>
-    <div class="hinfo">
-      <div class="hname">运动 20 分钟</div>
-      <div class="hmeta">⏳ 待完成 <span class="streak">🔥 1天</span></div>
-    </div>
+    <div class="hinfo"><div class="hname">运动 20 分钟</div><div class="hmeta">⏳ 待完成 <span class="streak">🔥 1天</span></div></div>
     <div class="check"></div>
   </div>
   <div class="habit">
     <div class="hemoji">😴</div>
-    <div class="hinfo">
-      <div class="hname">早睡 23:30</div>
-      <div class="hmeta">⏳ 待完成 <span class="streak">🔥 5天</span></div>
-    </div>
+    <div class="hinfo"><div class="hname">早睡 23:30</div><div class="hmeta">⏳ 待完成 <span class="streak">🔥 5天</span></div></div>
     <div class="check"></div>
   </div>
 
   <div class="note">
     <b>v1.2 第 1 轮更新（已按反馈调整）：</b><br>
-    ① 身份可多选、可在管理页重新选择<br>
+    ① 身份选择改成活泼不规则标签云，可多选<br>
     ② 新增「英语学习」身份<br>
-    ③ 卡片突出 highlight 重点句<br>
-    ④ 补签需 3 点能量兑换（坚持打卡每天 +1）<br>
-    ⑤ 统计页/空状态换用活泼图标
+    ③ 卡片突出 highlight，分类景色渐变+微动效<br>
+    ④ 补签需 3 点能量（坚持打卡每天 +1）<br>
+    ⑤ 管理/统计/空状态图标统一
   </div>
 
   <div class="identity" id="identity">
     <div class="ibox">
       <div class="ititle">🎯 你更想提升哪方面？</div>
       <div class="isub">可多选，我会综合推荐内容卡片</div>
-      <div class="iitem" data-key="kaoyan"><div class="iemoji">📚</div><div class="iinfo"><div class="iname">考研备考</div><div class="idesc">每天学习打卡，稳稳上岸</div></div><div class="icheck"></div></div>
-      <div class="iitem" data-key="study"><div class="iemoji">🌱</div><div class="iinfo"><div class="iname">学习成长</div><div class="idesc">学点东西，持续进步</div></div><div class="icheck"></div></div>
-      <div class="iitem" data-key="english"><div class="iemoji">🗣️</div><div class="iinfo"><div class="iname">英语学习</div><div class="idesc">听说读写，每天进步一点</div></div><div class="icheck"></div></div>
-      <div class="iitem" data-key="cognition"><div class="iemoji">🧠</div><div class="iinfo"><div class="iname">认知提升</div><div class="idesc">思维升级，效率翻倍</div></div><div class="icheck"></div></div>
-      <div class="iitem" data-key="life"><div class="iemoji">🍵</div><div class="iinfo"><div class="iname">生活方式</div><div class="idesc">高质量生活，爱自己</div></div><div class="icheck"></div></div>
+      <div class="itags" id="itags">
+        <div class="itag t0" data-key="kaoyan"><div class="iemoji">📚</div><div class="iname">考研备考</div><div class="idesc">每天学习打卡，稳稳上岸</div><div class="icheck"></div></div>
+        <div class="itag t1" data-key="study"><div class="iemoji">🌱</div><div class="iname">学习成长</div><div class="idesc">学点东西，持续进步</div><div class="icheck"></div></div>
+        <div class="itag t2" data-key="english"><div class="iemoji">🗣️</div><div class="iname">英语学习</div><div class="idesc">听说读写，每天进步</div><div class="icheck"></div></div>
+        <div class="itag t3" data-key="cognition"><div class="iemoji">🧠</div><div class="iname">认知提升</div><div class="idesc">思维升级，效率翻倍</div><div class="icheck"></div></div>
+        <div class="itag t4" data-key="life"><div class="iemoji">🍵</div><div class="iname">生活方式</div><div class="idesc">高质量生活，爱自己</div><div class="icheck"></div></div>
+      </div>
       <button class="ibtn" id="confirmBtn">开始打卡</button>
       <div class="iskip" id="skipBtn">先随便看看</div>
     </div>
   </div>
 
 <script>
-  // 身份多选
-  var items = document.querySelectorAll('.iitem');
+  var items = document.querySelectorAll('.itag');
   var selected = [];
   items.forEach(function(el) {
     el.addEventListener('click', function() {
@@ -153,13 +163,10 @@
   function updateBtn() {
     document.getElementById('confirmBtn').textContent = selected.length > 0 ? '开始打卡（已选 ' + selected.length + ' 项）' : '开始打卡';
   }
-  function hideIdentity() {
-    document.getElementById('identity').style.display = 'none';
-  }
+  function hideIdentity() { document.getElementById('identity').style.display = 'none'; }
   document.getElementById('confirmBtn').addEventListener('click', hideIdentity);
   document.getElementById('skipBtn').addEventListener('click', hideIdentity);
 
-  // 卡片展开/收起
   var expanded = true;
   document.getElementById('kcard').addEventListener('click', function() {
     expanded = !expanded;
@@ -167,7 +174,6 @@
     document.getElementById('khook').style.display = expanded ? 'none' : 'block';
     document.getElementById('kmore').textContent = expanded ? '轻点收起' : '轻点展开';
   });
-  // 初始为展开
   document.getElementById('khook').style.display = 'none';
 </script>
 </body>

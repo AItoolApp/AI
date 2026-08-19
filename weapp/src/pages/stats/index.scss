@@ -5,7 +5,7 @@
   margin-bottom: 28px;
 }
 .stat-card {
-  padding: 26px 16px;
+  padding: 24px 16px 22px;
   background: var(--card);
   border-radius: 20px;
   border: 1px solid var(--border);
@@ -16,6 +16,10 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   transition: transform .2s ease, box-shadow .2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 .stat-card:active { transform: scale(.96); }
 .stat-card::before {
@@ -26,19 +30,21 @@
   background: linear-gradient(90deg, var(--acc), var(--acc2));
 }
 .stat-card .sv {
-  font-size: 48px;
+  font-size: 46px;
   font-weight: 800;
   background: linear-gradient(135deg, var(--acc), var(--acc2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   line-height: 1.2;
+  margin-top: 4px;
 }
 .stat-card .sl {
   font-size: 22px;
   color: var(--txt3);
-  margin-top: 6px;
+  margin-top: 2px;
   font-weight: 500;
+  letter-spacing: .5px;
 }
 
 .stat-item {
@@ -96,7 +102,7 @@
   margin-bottom: 8px;
 }
 .stat-icon-img {
-  width: 56px;
-  height: 56px;
-  margin-bottom: 8px;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 4px;
 }

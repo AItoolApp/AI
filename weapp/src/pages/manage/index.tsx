@@ -151,24 +151,27 @@ export default class ManagePage extends Component<{}, State> {
 
         <Button className='add-btn' onClick={() => this.openAdd()}>+ 添加新习惯</Button>
 
-        <Button className='theme-btn' onClick={() => this.setState({ showTheme: true })}>
-          🎨 切换主题
-        </Button>
-
-        <Button className='theme-btn' onClick={() => {
-          saveIdentity('')
-          wx.showToast({ title: '下次进入今日页可重新选择身份', icon: 'none', duration: 2000 })
-        }}>
-          🎯 重新选择身份
-        </Button>
-
-        <Button className='theme-btn' onClick={() => this.setState({ showFeedback: true })}>
-          💬 反馈建议
-        </Button>
+        <View className='mgr-actions'>
+          <Button className='theme-btn' onClick={() => this.setState({ showTheme: true })}>
+            <View className='mgr-icon-badge badge-art'>🎨</View>
+            <Text className='mgr-btn-text'>切换主题</Text>
+          </Button>
+          <Button className='theme-btn' onClick={() => {
+            saveIdentity('')
+            wx.showToast({ title: '下次进入今日页可重新选择身份', icon: 'none', duration: 2000 })
+          }}>
+            <View className='mgr-icon-badge badge-target'>🎯</View>
+            <Text className='mgr-btn-text'>重新选择身份</Text>
+          </Button>
+          <Button className='theme-btn' onClick={() => this.setState({ showFeedback: true })}>
+            <View className='mgr-icon-badge badge-msg'>💬</View>
+            <Text className='mgr-btn-text'>反馈建议</Text>
+          </Button>
+        </View>
 
         {habits.length === 0 ? (
           <View className='empty-state'>
-            <Text className='ei'>📋</Text>
+            <Image className='empty-icon-img' src={ICON_MAP['writing']} mode='aspectFit' />
             <Text>还没有习惯，点击上方添加吧</Text>
           </View>
         ) : (

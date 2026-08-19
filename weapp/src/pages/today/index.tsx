@@ -206,16 +206,14 @@ export default class TodayPage extends Component<{}, State> {
             <View className='identity-box'>
               <View className='identity-title'>🎯 你更想提升哪方面？</View>
               <View className='identity-sub'>可多选，我会综合推荐内容卡片</View>
-              <View className='identity-list'>
-                {IDENTITIES.map(idt => {
+              <View className='identity-tags'>
+                {IDENTITIES.map((idt, idx) => {
                   const on = selected.includes(idt.key)
                   return (
-                    <View key={idt.key} className={`identity-item ${on ? 'on' : ''}`} onClick={() => this.toggleSelect(idt.key)}>
-                      <Text className='identity-emoji'>{idt.emoji}</Text>
-                      <View className='identity-info'>
-                        <Text className='identity-name'>{idt.name}</Text>
-                        <Text className='identity-desc'>{idt.desc}</Text>
-                      </View>
+                    <View key={idt.key} className={`identity-tag tag-${idx % 5} ${on ? 'on' : ''}`} onClick={() => this.toggleSelect(idt.key)}>
+                      <Text className='identity-tag-emoji'>{idt.emoji}</Text>
+                      <Text className='identity-tag-name'>{idt.name}</Text>
+                      <Text className='identity-tag-desc'>{idt.desc}</Text>
                       <View className={`identity-check ${on ? 'checked' : ''}`}>{on ? '✓' : ''}</View>
                     </View>
                   )

@@ -30,6 +30,14 @@
     padding:20px; margin-bottom:16px; box-shadow:0 1px 3px rgba(60,40,20,.06), 0 4px 12px rgba(60,40,20,.05);
     position:relative; overflow:hidden; cursor:pointer;
   }
+  .kbg {
+    position:absolute; top:0; left:0; right:0; bottom:0; z-index:0;
+    background-size:cover; background-position:center;
+    background-image:url('weapp/src/assets/cardbg/learning.jpg');
+    opacity:.55;
+    animation: kcPan 12s ease-in-out infinite;
+  }
+  @keyframes kcPan { 0%,100% { transform:scale(1);} 50% { transform:scale(1.06);} }
   .kcard::before {
     content:''; position:absolute; top:-40%; left:-20%; width:140%; height:140%; z-index:0;
     background: radial-gradient(circle at 25% 20%, rgba(255,220,180,.35), transparent 45%),
@@ -93,6 +101,7 @@
   <div class="summary">✓ 1/3 · 能量 5 点</div>
 
   <div class="kcard" id="kcard">
+    <div class="kbg"></div>
     <div class="ktop">
       <div class="kbadge">💡 方法卡 · 学习成长推荐</div>
       <div class="kmore" id="kmore">轻点收起</div>
@@ -132,7 +141,9 @@
     ⑤ 管理/统计/空状态图标统一
   </div>
 
-  <div class="identity" id="identity">
+  <button class="ibtn" id="openIdentityBtn" style="margin-bottom:16px;">🎯 打开身份选择预览</button>
+
+  <div class="identity" id="identity" style="display:none;">
     <div class="ibox">
       <div class="ititle">🎯 你更想提升哪方面？</div>
       <div class="isub">可多选，我会综合推荐内容卡片</div>
@@ -164,8 +175,10 @@
     document.getElementById('confirmBtn').textContent = selected.length > 0 ? '开始打卡（已选 ' + selected.length + ' 项）' : '开始打卡';
   }
   function hideIdentity() { document.getElementById('identity').style.display = 'none'; }
+  function showIdentity() { document.getElementById('identity').style.display = 'flex'; }
   document.getElementById('confirmBtn').addEventListener('click', hideIdentity);
   document.getElementById('skipBtn').addEventListener('click', hideIdentity);
+  document.getElementById('openIdentityBtn').addEventListener('click', showIdentity);
 
   var expanded = true;
   document.getElementById('kcard').addEventListener('click', function() {

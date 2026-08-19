@@ -61,6 +61,26 @@
   0%, 100% { transform: translate(0, 0) scale(1); }
   50% { transform: translate(2%, 3%) scale(1.05); }
 }
+.kc-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: .55;
+  animation: kcPan 12s ease-in-out infinite;
+}
+@keyframes kcPan {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+.knowledge-card > .kc-top,
+.knowledge-card > .kc-title,
+.knowledge-card > .kc-hook,
+.knowledge-card > .kc-body {
+  position: relative;
+  z-index: 1;
+}
 @keyframes kcGlow {
   0%, 100% { opacity: .6; }
   50% { opacity: 1; }

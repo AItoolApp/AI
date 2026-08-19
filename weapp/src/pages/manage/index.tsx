@@ -152,19 +152,19 @@ export default class ManagePage extends Component<{}, State> {
         <Button className='add-btn' onClick={() => this.openAdd()}>+ 添加新习惯</Button>
 
         <View className='mgr-actions'>
-          <Button className='theme-btn' onClick={() => this.setState({ showTheme: true })}>
-            <View className='mgr-icon-badge badge-art'>🎨</View>
+          <Button className='theme-btn mgr-art' onClick={() => this.setState({ showTheme: true })}>
+            <View className='mgr-icon'>🎨</View>
             <Text className='mgr-btn-text'>切换主题</Text>
           </Button>
-          <Button className='theme-btn' onClick={() => {
+          <Button className='theme-btn mgr-target' onClick={() => {
             saveIdentity('')
             wx.showToast({ title: '下次进入今日页可重新选择身份', icon: 'none', duration: 2000 })
           }}>
-            <View className='mgr-icon-badge badge-target'>🎯</View>
+            <View className='mgr-icon'>🎯</View>
             <Text className='mgr-btn-text'>重新选择身份</Text>
           </Button>
-          <Button className='theme-btn' onClick={() => this.setState({ showFeedback: true })}>
-            <View className='mgr-icon-badge badge-msg'>💬</View>
+          <Button className='theme-btn mgr-msg' onClick={() => this.setState({ showFeedback: true })}>
+            <View className='mgr-icon'>💬</View>
             <Text className='mgr-btn-text'>反馈建议</Text>
           </Button>
         </View>

@@ -57,13 +57,21 @@ export function randomHatch(): PetData {
 /* ─── 学习小目标（英语/成长预设）─── */
 
 export const PRESET_GOALS = [
-  { key: 'oral', name: '第一次英语口语交流', emoji: '🗣️' },
-  { key: 'book', name: '读完一本英文原版书', emoji: '📖' },
-  { key: 'movie', name: '无字幕看一部英文电影', emoji: '🎬' },
-  { key: 'abroad', name: '出国旅行用英语点餐问路', emoji: '✈️' }
+  { key: 'oral', category: '英语学习', name: '第一次英语口语交流', emoji: '🗣️' },
+  { key: 'book', category: '英语学习', name: '读完一本英文原版书', emoji: '📖' },
+  { key: 'movie', category: '英语学习', name: '无字幕看一部英文电影', emoji: '🎬' },
+  { key: 'abroad', category: '英语学习', name: '出国旅行用英语点餐问路', emoji: '✈️' },
+  { key: 'kaoyan_words', category: '考研备考', name: '背完一轮考研核心词汇', emoji: '📚' },
+  { key: 'kaoyan_paper', category: '考研备考', name: '精读 10 篇真题阅读', emoji: '📝' },
+  { key: 'kaoyan_mock', category: '考研备考', name: '完成 3 次全真模拟', emoji: '⏱️' },
+  { key: 'cog_model', category: '认知提升', name: '掌握 5 个思维模型并实践', emoji: '🧠' },
+  { key: 'cog_book', category: '认知提升', name: '读完一本认知类好书并输出笔记', emoji: '📖' },
+  { key: 'life_sleep', category: '生活方式', name: '连续 30 天 23:30 前睡觉', emoji: '😴' },
+  { key: 'life_sport', category: '生活方式', name: '每周运动 3 次，坚持 1 个月', emoji: '🏃' }
 ]
 
 const GOALS_KEY = 'habit_goals'
+const CUSTOM_GOALS_KEY = 'habit_custom_goals'
 
 export function loadGoals(): string[] {
   try {
@@ -79,6 +87,26 @@ export function loadGoals(): string[] {
 export function saveGoals(goals: string[]): boolean {
   try {
     Taro.setStorageSync(GOALS_KEY, JSON.stringify(goals))
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
+export function loadCustomGoals(): string[] {
+  try {
+    const raw = Taro.getStorageSync(CUSTOM_GOALS_KEY)
+    if (!raw) return []
+    const arr = JSON.parse(raw)
+    return Array.isArray(arr) ? arr : []
+  } catch (e) {
+    return []
+  }
+}
+
+export function saveCustomGoals(goals: string[]): boolean {
+  try {
+    Taro.setStorageSync(CUSTOM_GOALS_KEY, JSON.stringify(goals))
     return true
   } catch (e) {
     return false

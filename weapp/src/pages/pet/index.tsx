@@ -1,8 +1,8 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
-import { View, Text, Button } from '@tarojs/components'
-import { loadEnergy } from '../../utils/storage'
-import { loadPet, savePet, defaultEgg, randomHatch, HATCH_ENERGY, PET_TYPES, PRESET_GOALS, loadGoals, saveGoals } from '../../utils/pet'
+import { View, Text, Button, Input } from '@tarojs/components'
+import { loadEnergy, spendEnergy } from '../../utils/storage'
+import { loadPet, savePet, defaultEgg, randomHatch, HATCH_ENERGY, PET_TYPES, PRESET_GOALS, loadGoals, saveGoals, loadCustomGoals, saveCustomGoals } from '../../utils/pet'
 import { loadTheme } from '../../utils/storage'
 import { getNavBarHeight } from '../../utils/safeArea'
 import './index.scss'
@@ -14,6 +14,8 @@ interface State {
   peek: boolean
   feedBurst: number
   goals: string[]
+  customGoals: string[]
+  customGoalInput: string
 }
 
 export default class PetPage extends Component<{}, State> {
@@ -23,7 +25,9 @@ export default class PetPage extends Component<{}, State> {
     theme: 'latte',
     peek: false,
     feedBurst: 0,
-    goals: []
+    goals: [],
+    customGoals: [],
+    customGoalInput: ''
   }
 
   componentDidMount() { this.refresh() }
@@ -34,38 +38,48 @@ export default class PetPage extends Component<{}, State> {
       pet: loadPet() || defaultEgg(),
       energy: loadEnergy(),
       theme: loadTheme(),
-      goals: loadGoals()
+      goals: loadGoals(),
+      customGoals: loadCustomGoals()
     })
+  }
+
+  notifyPet() {
+    Taro.eventCenter.trigger('pet-changed')
   }
 
   toggleSleep() {
     const pet = { ...this.state.pet, sleeping: !this.state.pet.sleeping }
     savePet(pet)
     this.setState({ pet, peek: false })
+    this.notifyPet()
   }
 
   feed() {
     const { energy } = this.state
     if (energy <= 0) {
-      wx.showToast({ title: '还没有能量，先打卡或新建习惯赚能量吧', icon: 'none', duration: 2000 })
+      wx.showToast({ title: '还没有能量，先去打卡或新建习惯赚能量吧', icon: 'none', duration: 2200 })
       return
     }
+    spendEnergy(1)
+    const left = loadEnergy()
+    this.setState({ energy: left })
     const burstAt = Date.now()
     this.setState({ feedBurst: burstAt })
     setTimeout(() => {
       this.setState(prev => prev.feedBurst === burstAt ? { feedBurst: 0 } : null)
     }, 1800)
-    wx.showToast({ title: '🫳 投喂成功！宠物陪伴你积蓄能量，他日必定破壳飞天 ✨', icon: 'none', duration: 2500 })
+    wx.showToast({ title: `🫳 投喂成功，还剩 ${left} 点能量，宠物陪伴你积蓄能量 ✨`, icon: 'none', duration: 2500 })
   }
 
   summonCompanion() {
     const pet = { ...this.state.pet, sleeping: false }
     savePet(pet)
     this.setState({ pet })
+    this.notifyPet()
     wx.showToast({ title: '已召唤出来陪伴，回今日页看看', icon: 'none', duration: 2000 })
     setTimeout(() => {
       Taro.switchTab({ url: '/pages/today/index' })
-    }, 800)
+    }, 900)
   }
 
   toggleGoal(key: string) {
@@ -73,6 +87,23 @@ export default class PetPage extends Component<{}, State> {
     const next = goals.includes(key) ? goals.filter(g => g !== key) : [...goals, key]
     saveGoals(next)
     this.setState({ goals: next })
+  }
+
+  addCustomGoal() {
+    const text = this.state.customGoalInput.trim()
+    if (!text) {
+      wx.showToast({ title: '先写一个小目标吧', icon: 'none' })
+      return
+    }
+    const next = [...this.state.customGoals, text]
+    saveCustomGoals(next)
+    this.setState({ customGoals: next, customGoalInput: '' })
+  }
+
+  removeCustomGoal(index: number) {
+    const next = this.state.customGoals.filter((_, i) => i !== index)
+    saveCustomGoals(next)
+    this.setState({ customGoals: next })
   }
 
   hatch() {
@@ -84,6 +115,7 @@ export default class PetPage extends Component<{}, State> {
     const pet = randomHatch()
     savePet(pet)
     this.setState({ pet })
+    this.notifyPet()
     wx.showToast({ title: `孵化成功！是${PET_TYPES.find(t => t.key === pet.type)?.name} 🎉`, icon: 'none', duration: 2000 })
   }
 
@@ -181,19 +213,45 @@ export default class PetPage extends Component<{}, State> {
 
         {/* 学习小目标 */}
         <View className='pet-guide'>
-          <Text className='pet-guide-title'>🎯 学习小目标（可多选）</Text>
-          <Text className='pet-guide-text'>选择你想挑战的小目标，后续会显示完成进度。</Text>
-          <View className='goal-list'>
-            {PRESET_GOALS.map(g => {
-              const on = this.state.goals.includes(g.key)
-              return (
-                <View key={g.key} className={`goal-item ${on ? 'on' : ''}`} onClick={() => this.toggleGoal(g.key)}>
-                  <Text className='goal-emoji'>{g.emoji}</Text>
-                  <Text className='goal-name'>{g.name}</Text>
-                  <View className={`goal-check ${on ? 'checked' : ''}`}>{on ? '✓' : ''}</View>
-                </View>
-              )
-            })}
+          <Text className='pet-guide-title'>🎯 小目标 & 里程碑（可多选）</Text>
+          <Text className='pet-guide-text'>按分类选择你想挑战的小目标，后续会显示完成进度。</Text>
+          {['英语学习', '考研备考', '认知提升', '生活方式'].map(cat => (
+            <View key={cat} className='goal-group'>
+              <Text className='goal-cat'>{cat}</Text>
+              <View className='goal-list'>
+                {PRESET_GOALS.filter(g => g.category === cat).map(g => {
+                  const on = this.state.goals.includes(g.key)
+                  return (
+                    <View key={g.key} className={`goal-item ${on ? 'on' : ''}`} onClick={() => this.toggleGoal(g.key)}>
+                      <Text className='goal-emoji'>{g.emoji}</Text>
+                      <Text className='goal-name'>{g.name}</Text>
+                      <View className={`goal-check ${on ? 'checked' : ''}`}>{on ? '✓' : ''}</View>
+                    </View>
+                  )
+                })}
+              </View>
+            </View>
+          ))}
+          <View className='goal-custom'>
+            <Text className='goal-cat'>自定义小目标</Text>
+            <View className='goal-custom-row'>
+              <Input
+                className='goal-custom-input'
+                value={this.state.customGoalInput}
+                placeholder='写一个自己的小目标'
+                maxlength={30}
+                type='text'
+                onInput={e => this.setState({ customGoalInput: e.detail.value })}
+              />
+              <Button className='goal-custom-btn' onClick={() => this.addCustomGoal()}>添加</Button>
+            </View>
+            {this.state.customGoals.map((g, i) => (
+              <View key={i} className='goal-item custom'>
+                <Text className='goal-emoji'>✏️</Text>
+                <Text className='goal-name'>{g}</Text>
+                <View className='goal-check checked' onClick={() => this.removeCustomGoal(i)}>✕</View>
+              </View>
+            ))}
           </View>
         </View>
 

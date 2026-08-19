@@ -3,11 +3,9 @@ import Taro from '@tarojs/taro'
 import { View, Text, Button, ScrollView, Image } from '@tarojs/components'
 import { Habit, ICON_MAP } from '../../utils/constants'
 import HabitIcon from '../../components/HabitIcon'
-import FloatingPet from '../../components/FloatingPet'
 import { getStreak } from '../../utils/stats'
 import { loadData, saveHabitCheckins, todayStr, loadTheme, loadIdentity, saveIdentity, loadEnergy, awardEnergyOnceToday } from '../../utils/storage'
 import { getTodayCard, IDENTITIES, ContentCard } from '../../utils/content'
-import { loadPet, PetData } from '../../utils/pet'
 import { getCardBg } from '../../utils/cardTheme'
 import { getNavBarHeight } from '../../utils/safeArea'
 import './index.scss'
@@ -23,7 +21,6 @@ interface State {
   cardExpanded: boolean
   burst: number
   energy: number
-  pet: PetData | null
 }
 
 export default class TodayPage extends Component<{}, State> {
@@ -37,8 +34,7 @@ export default class TodayPage extends Component<{}, State> {
     card: getTodayCard(),
     cardExpanded: false,
     burst: 0,
-    energy: 0,
-    pet: null
+    energy: 0
   }
 
   componentDidMount() {
@@ -73,7 +69,7 @@ export default class TodayPage extends Component<{}, State> {
 
   loadHabits() {
     const data = loadData()
-    this.setState({ habits: data.habits, currentDate: todayStr(), energy: loadEnergy(), pet: loadPet() })
+    this.setState({ habits: data.habits, currentDate: todayStr(), energy: loadEnergy() })
   }
 
   toggleCheckin(id: number) {
@@ -230,9 +226,6 @@ export default class TodayPage extends Component<{}, State> {
             <Text className='cb-text'>太棒了！</Text>
           </View>
         )}
-
-        {/* 悬浮陪伴宠物 */}
-        <FloatingPet pet={this.state.pet} onUpdate={() => this.loadHabits()} />
 
         {/* 身份选择（可多选，可重新进入） */}
         {showIdentity && (

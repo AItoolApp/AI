@@ -7,7 +7,7 @@ import { getNavBarHeight } from '../../utils/safeArea'
 import HabitIcon from '../../components/HabitIcon'
 import './index.scss'
 
-let undoTimer: any = null
+let undoTimers: Record<number, any> = {}
 
 interface State {
   habits: Habit[]
@@ -22,7 +22,7 @@ interface State {
   editColor: string
   editRestDays: number[]
   theme: string
-  pendingDelete: number | null
+  pendingDeletes: number[]
   undoTimer: any
 }
 
@@ -40,7 +40,7 @@ export default class ManagePage extends Component<{}, State> {
     editColor: COLORS[0],
     editRestDays: [],
     theme: 'latte',
-    pendingDelete: null,
+    pendingDeletes: [],
     undoTimer: null
   }
 
@@ -99,10 +99,10 @@ export default class ManagePage extends Component<{}, State> {
       content: '打卡记录也会一起删除，确定吗？',
       success: (res) => {
         if (res.confirm) {
-          if (undoTimer) clearTimeout(undoTimer)
-          this.setState({ pendingDelete: id })
-          undoTimer = setTimeout(() => {
-            undoTimer = null
+          this.setState(prev => ({ pendingDeletes: prev.pendingDeletes.includes(id) ? prev.pendingDeletes : [...prev.pendingDeletes, id] }))
+          if (undoTimers[id]) clearTimeout(undoTimers[id])
+          undoTimers[id] = setTimeout(() => {
+            delete undoTimers[id]
             this.doDelete(id)
           }, 5000)
         }
@@ -110,10 +110,9 @@ export default class ManagePage extends Component<{}, State> {
     })
   }
 
-  undoDelete() {
-    if (undoTimer) clearTimeout(undoTimer)
-    undoTimer = null
-    this.setState({ pendingDelete: null })
+  undoDelete(id: number) {
+    if (undoTimers[id]) { clearTimeout(undoTimers[id]); delete undoTimers[id] }
+    this.setState(prev => ({ pendingDeletes: prev.pendingDeletes.filter(x => x !== id) }))
   }
 
   doDelete(id: number) {
@@ -122,14 +121,15 @@ export default class ManagePage extends Component<{}, State> {
       const habits = prev.habits.filter(h => h.id !== id)
       removeHabitData(id)
       saveData({ habits, theme: prev.theme })
-      return { habits, pendingDelete: null }
+      return { habits, pendingDeletes: prev.pendingDeletes.filter(x => x !== id) }
     }, () => {
       wx.showToast({ title: '已删除', icon: 'none' })
     })
   }
 
   componentWillUnmount() {
-    if (undoTimer) clearTimeout(undoTimer)
+    Object.keys(undoTimers).forEach(k => clearTimeout(undoTimers[Number(k)]))
+    undoTimers = {}
   }
 
   async submitFeedback() {
@@ -211,13 +211,13 @@ export default class ManagePage extends Component<{}, State> {
         ) : (
           <ScrollView scrollY className='manage-list'>
             {habits.map(h => {
-              if (h.id === this.state.pendingDelete) {
+              if (this.state.pendingDeletes.includes(h.id)) {
                 return (
                   <View key={h.id} className='m-item pending'>
                     <HabitIcon emoji={h.emoji} className='mi' imageClassName='mi-img' />
                     <Text className='mn'>已删除 · 5 秒内可恢复</Text>
                     <View className='ma'>
-                      <Button className='m-btn edit' onClick={() => this.undoDelete()}>撤销</Button>
+                      <Button className='m-btn edit' onClick={() => this.undoDelete(h.id)}>撤销</Button>
                     </View>
                   </View>
                 )

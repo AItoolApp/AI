@@ -45,7 +45,7 @@ export default class ManagePage extends Component<{}, State> {
   }
 
   componentDidMount() { Taro.showShareMenu({ withShareTicket: true }); this.refresh() }
-  componentDidShow() { this.refresh() }
+  componentDidShow() { this.refresh(); Taro.eventCenter.trigger('pet-changed') }
 
   refresh() {
     const data = loadData()

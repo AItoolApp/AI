@@ -17,7 +17,7 @@ export default class StatsPage extends Component<{}, State> {
   state: State = { stats: [], theme: 'latte' }
 
   componentDidMount() { Taro.showShareMenu({ withShareTicket: true }); this.refresh() }
-  componentDidShow() { this.refresh() }
+  componentDidShow() { this.refresh(); Taro.eventCenter.trigger('pet-changed') }
 
   refresh() {
     const data = loadData()

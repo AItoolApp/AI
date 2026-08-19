@@ -43,7 +43,7 @@ export default class TodayPage extends Component<{}, State> {
     this.loadTheme()
     this.initIdentity()
   }
-  componentDidShow() { this.loadHabits(); this.loadTheme(); this.initIdentity() }
+  componentDidShow() { this.loadHabits(); this.loadTheme(); this.initIdentity(); Taro.eventCenter.trigger('pet-changed') }
 
   initIdentity() {
     const identity = loadIdentity()

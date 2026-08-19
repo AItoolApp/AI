@@ -17,8 +17,7 @@ const EXPRESSIONS = [
 
 export default function FloatingPet({ pet, onUpdate }: Props) {
   const [expr, setExpr] = useState(0)
-  const win = Taro.getWindowInfo()
-  const [pos, setPos] = useState({ x: Math.max(0, win.windowWidth - 120), y: Math.max(0, win.windowHeight - 320) })
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null)
   const offRef = useRef({ x: 0, y: 0 })
   const draggingRef = useRef(false)
 
@@ -39,13 +38,18 @@ export default function FloatingPet({ pet, onUpdate }: Props) {
 
   const onTouchStart = (e: any) => {
     const t = e.touches[0]
-    offRef.current = { x: t.clientX - pos.x, y: t.clientY - pos.y }
+    // 第一次拖动时从默认右下角位置切换为 left/top 坐标
+    let x = pos ? pos.x : Taro.getWindowInfo().windowWidth - 116
+    let y = pos ? pos.y : Taro.getWindowInfo().windowHeight - 320
+    setPos({ x, y })
+    offRef.current = { x: t.clientX - x, y: t.clientY - y }
     draggingRef.current = true
   }
 
   const onTouchMove = (e: any) => {
     if (!draggingRef.current) return
     const t = e.touches[0]
+    const win = Taro.getWindowInfo()
     const x = Math.min(Math.max(0, t.clientX - offRef.current.x), win.windowWidth - 96)
     const y = Math.min(Math.max(0, t.clientY - offRef.current.y), win.windowHeight - 180)
     setPos({ x, y })
@@ -59,7 +63,7 @@ export default function FloatingPet({ pet, onUpdate }: Props) {
   return (
     <View
       className='floating-pet fly-in'
-      style={`left: ${pos.x}px; top: ${pos.y}px;`}
+      style={pos ? `left: ${pos.x}px; top: ${pos.y}px;` : ''}
     >
       <View className='fp-bubble'>
         <Text>{EXPRESSIONS[expr].text}</Text>

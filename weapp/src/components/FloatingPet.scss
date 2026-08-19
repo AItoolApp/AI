@@ -1,18 +1,20 @@
 .floating-pet {
   position: fixed;
-  z-index: 90;
+  right: 20px;
+  bottom: 160px;
+  z-index: 999;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
 }
 .floating-pet.fly-in {
-  animation: fpFlyIn .8s cubic-bezier(.3,1.4,.5,1);
+  animation: fpFlyIn .9s cubic-bezier(.3,1.4,.5,1);
 }
 @keyframes fpFlyIn {
-  0% { transform: rotate(360deg) scale(.1); opacity: 0; }
-  60% { transform: rotate(-10deg) scale(1.1); opacity: 1; }
-  100% { transform: rotate(0) scale(1); opacity: 1; }
+  0% { transform: translateY(180px) scale(.1) rotate(360deg); opacity: 0; }
+  60% { transform: translateY(0) scale(1.1) rotate(-10deg); opacity: 1; }
+  100% { transform: translateY(0) scale(1) rotate(0); opacity: 1; }
 }
 .fp-bubble {
   background: #fff;

@@ -27,8 +27,16 @@
   box-shadow: 0 2px 8px rgba(60,40,20,.12);
   white-space: nowrap;
 }
-.fp-body {
+.fp-touch {
   pointer-events: auto;
+  width: 112px;
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fp-body {
+  pointer-events: none;
   width: 88px;
   height: 88px;
   border-radius: 50%;

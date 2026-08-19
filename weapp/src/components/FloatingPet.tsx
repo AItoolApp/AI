@@ -90,13 +90,16 @@ export default function FloatingPet({ pet, onUpdate, animate = false }: Props) {
         <Text>{EXPRESSIONS[expr].text}</Text>
       </View>
       <View
-        className='fp-body'
+        className='fp-touch'
+        catchMove
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         onClick={tap}
       >
-        <Text className='fp-emoji'>{emoji}</Text>
+        <View className='fp-body'>
+          <Text className='fp-emoji'>{emoji}</Text>
+        </View>
       </View>
       <View className='fp-sleep' onClick={sleep}>🏠</View>
     </View>

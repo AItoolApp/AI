@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
 import { PetData, savePet, PET_TYPES, loadPetPos, savePetPos } from '../utils/pet'
@@ -19,11 +19,21 @@ const EXPRESSIONS = [
 
 export default function FloatingPet({ pet, onUpdate, animate = false }: Props) {
   const [expr, setExpr] = useState(0)
-  const savedPos = loadPetPos()
-  const [pos, setPos] = useState<{ x: number; y: number } | null>(savedPos)
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(loadPetPos())
   const posRef = useRef(pos)
   const offRef = useRef({ x: 0, y: 0 })
   const draggingRef = useRef(false)
+  const movedRef = useRef(false)
+
+  // 任何页面拖动后，所有已挂载的宠物实例实时同步位置
+  useEffect(() => {
+    const handler = (p: { x: number; y: number }) => {
+      setPos(p)
+      posRef.current = p
+    }
+    Taro.eventCenter.on('pet-pos-changed', handler)
+    return () => { Taro.eventCenter.off('pet-pos-changed', handler) }
+  }, [])
 
   if (!pet || pet.type === 'egg' || pet.sleeping) return null
 
@@ -42,16 +52,18 @@ export default function FloatingPet({ pet, onUpdate, animate = false }: Props) {
 
   const onTouchStart = (e: any) => {
     const t = e.touches[0]
-    let x = posRef.current ? posRef.current.x : Taro.getWindowInfo().windowWidth - 116
-    let y = posRef.current ? posRef.current.y : Taro.getWindowInfo().windowHeight - 320
+    let x = posRef.current ? posRef.current.x : Taro.getWindowInfo().windowWidth - 108
+    let y = posRef.current ? posRef.current.y : Taro.getWindowInfo().windowHeight - 334
     setPos({ x, y })
     posRef.current = { x, y }
     offRef.current = { x: t.clientX - x, y: t.clientY - y }
     draggingRef.current = true
+    movedRef.current = false
   }
 
   const onTouchMove = (e: any) => {
     if (!draggingRef.current) return
+    movedRef.current = true
     const t = e.touches[0]
     const win = Taro.getWindowInfo()
     const x = Math.min(Math.max(0, t.clientX - offRef.current.x), win.windowWidth - 96)
@@ -63,7 +75,10 @@ export default function FloatingPet({ pet, onUpdate, animate = false }: Props) {
 
   const onTouchEnd = () => {
     draggingRef.current = false
-    if (posRef.current) savePetPos(posRef.current)
+    if (movedRef.current && posRef.current) {
+      savePetPos(posRef.current)
+      Taro.eventCenter.trigger('pet-pos-changed', posRef.current)
+    }
   }
 
   return (

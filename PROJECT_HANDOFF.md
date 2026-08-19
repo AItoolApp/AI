@@ -89,8 +89,6 @@ npm run build:weapp
 - **悬浮宠物位置同步**：宠物位置存 `habit_pet_pos`，拖动结束后保存并 `Taro.eventCenter.trigger('pet-pos-changed')` 实时同步所有已挂载页面；**以后新增页面**必须按现有页面方式挂载 `<FloatingPet pet={...} onUpdate={...} />` 并在 `refresh` 里 `loadPet()`，即可自动保持一致。
 - 宠物数据带 `schemaVersion`，后续字段变更只升版本并做默认值兜底。
 
-## 注意事项-old
-
 - CloudBase 控制台必须用「使用微信公众平台账号登录」，普通腾讯云账号登录会显示 0 个环境。
 - 根目录 `cloudfunctions` 与 `weapp/cloudfunctions` 存在重复维护；后续提交时先确认以哪个副本为准。
 - 不提交 `node_modules/` 和 `weapp/project.private.config.json`。

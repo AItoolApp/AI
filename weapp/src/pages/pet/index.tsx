@@ -63,13 +63,35 @@ export default class PetPage extends Component<{}, State> {
   }
 
   feed() {
-    const { energy } = this.state
+    const { energy, pet } = this.state
     if (energy <= 0) {
       wx.showToast({ title: '还没有能量，先去打卡或新建习惯赚能量吧', icon: 'none', duration: 2200 })
       return
     }
     spendEnergy(1)
     const left = loadEnergy()
+
+    if (pet.type === 'egg') {
+      const hatchProgress = (pet.hatchProgress || 0) + 1
+      const nextPet = { ...pet, hatchProgress }
+      savePet(nextPet)
+      this.setState({ pet: nextPet, energy: left })
+      const burstAt = Date.now()
+      this.setState({ feedBurst: burstAt })
+      setTimeout(() => {
+        this.setState(prev => prev.feedBurst === burstAt ? { feedBurst: 0 } : null)
+      }, 1800)
+      if (hatchProgress >= HATCH_ENERGY) {
+        wx.showToast({ title: `孵化值满 ${HATCH_ENERGY} 点啦，准备孵化…`, icon: 'none', duration: 1500 })
+        setTimeout(() => {
+          this.hatch(nextPet)
+        }, 1200)
+      } else {
+        wx.showToast({ title: `🫳 投喂成功，孵化值 ${hatchProgress}/${HATCH_ENERGY}，还剩 ${left} 点能量`, icon: 'none', duration: 2500 })
+      }
+      return
+    }
+
     this.setState({ energy: left })
     const burstAt = Date.now()
     this.setState({ feedBurst: burstAt })
@@ -115,10 +137,12 @@ export default class PetPage extends Component<{}, State> {
     this.setState({ customGoals: next })
   }
 
-  hatch() {
-    if (this.state.pet.type !== 'egg') return
-    if (this.state.energy < HATCH_ENERGY) {
-      wx.showToast({ title: `还需要 ${HATCH_ENERGY - this.state.energy} 点能量才能孵化`, icon: 'none' })
+  hatch(existingPet?: ReturnType<typeof defaultEgg>) {
+    const current = existingPet || this.state.pet
+    if (current.type !== 'egg') return
+    const progress = current.hatchProgress || 0
+    if (progress < HATCH_ENERGY && this.state.energy < HATCH_ENERGY) {
+      wx.showToast({ title: `孵化值 ${progress}/${HATCH_ENERGY}，投喂或能量满后才能孵化`, icon: 'none', duration: 2200 })
       return
     }
     const pet = randomHatch()
@@ -132,7 +156,7 @@ export default class PetPage extends Component<{}, State> {
     const { pet, energy, theme, peek } = this.state
     const petType = PET_TYPES.find(t => t.key === pet.type)
     const isEgg = pet.type === 'egg'
-    const canHatch = isEgg && energy >= HATCH_ENERGY
+    const canHatch = isEgg && ((pet.hatchProgress || 0) >= HATCH_ENERGY || energy >= HATCH_ENERGY)
     const emoji = isEgg ? '🥚' : (petType?.emoji || '🐣')
 
     return (
@@ -172,8 +196,8 @@ export default class PetPage extends Component<{}, State> {
           <Text className='pet-energy'>⚡ 能量 {energy} 点</Text>
           {isEgg && (
             <Text className='pet-progress'>
-              孵化值 {energy}/{HATCH_ENERGY}（试运行阈值，正式版 21）
-              {canHatch ? ' · 可以孵化啦！' : ` · 还差 ${HATCH_ENERGY - energy} 点`}
+              孵化值 {pet.hatchProgress || 0}/{HATCH_ENERGY} · 投喂 1 次 = 孵化值 +1（试运行，正式版 21）
+              {canHatch ? ' · 可以孵化啦！' : ` · 还差 ${Math.max(0, HATCH_ENERGY - (pet.hatchProgress || 0))} 点`}
             </Text>
           )}
           {!isEgg && <Text className='pet-tip'>每天完成习惯打卡会自动投喂能量</Text>}

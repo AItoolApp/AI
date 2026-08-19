@@ -15,6 +15,8 @@ export interface PetData {
   type: string
   stage: 'egg' | 'baby' | 'adult'
   sleeping: boolean
+  /** 孵化值：投喂 1 次 +1，满 HATCH_ENERGY 可孵化 */
+  hatchProgress?: number
   hatchedAt?: string
 }
 
@@ -44,7 +46,7 @@ export function savePet(pet: PetData): boolean {
 }
 
 export function defaultEgg(): PetData {
-  return { schemaVersion: PET_DATA_VERSION, type: 'egg', stage: 'egg', sleeping: true }
+  return { schemaVersion: PET_DATA_VERSION, type: 'egg', stage: 'egg', sleeping: true, hatchProgress: 0 }
 }
 
 export function randomHatch(): PetData {
@@ -55,6 +57,7 @@ export function randomHatch(): PetData {
     type: t.key,
     stage: 'baby',
     sleeping: true,
+    hatchProgress: HATCH_ENERGY,
     hatchedAt: new Date().toISOString()
   }
 }

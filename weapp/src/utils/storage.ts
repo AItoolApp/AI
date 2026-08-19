@@ -259,3 +259,10 @@ export function spendEnergy(cost: number): boolean {
 export function refundEnergy(n: number) {
   saveEnergy(loadEnergy() + n)
 }
+
+/** 新建习惯的一次性能量奖励（v1.3 试运行：让孵化更快可测） */
+export function addHabitBonusEnergy(): number {
+  const next = loadEnergy() + 1
+  saveEnergy(next)
+  return next
+}

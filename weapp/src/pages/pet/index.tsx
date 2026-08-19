@@ -98,16 +98,25 @@ export default class PetPage extends Component<{}, State> {
         </View>
 
         <View className='pet-guide'>
-          <Text className='pet-guide-title'>💡 怎么获取能量和孵化值</Text>
-          {isEgg ? (
-            <Text className='pet-guide-text'>
-              每天完成任意习惯打卡，第一次打卡自动 +1 点能量；能量就是孵化值。当前试运行满 {HATCH_ENERGY} 点可孵化，正式版为 21 点。打卡后今日页右上角 ⚡ 数值会同步增加。
-            </Text>
-          ) : (
-            <Text className='pet-guide-text'>
-              每天完成习惯打卡会自动投喂能量，连续打卡 7 天进化一次，累计 30 天解锁换装。先坚持打卡，小可爱会一直陪你长大。
-            </Text>
-          )}
+          <Text className='pet-guide-title'>💡 能量怎么来（一看就懂）</Text>
+          <View className='pet-guide-list'>
+            <Text className='pet-guide-line'>① 每新建 1 个习惯：能量 +1（一次性）</Text>
+            <Text className='pet-guide-line'>② 每天第一次完成打卡：能量 +1（每天最多 1 次）</Text>
+            <Text className='pet-guide-line'>③ 能量会自动投喂给灵宠蛋/宠物，右上角 ⚡ 可查看</Text>
+            {isEgg && <Text className='pet-guide-line pet-guide-hot'>④ 满 {HATCH_ENERGY} 点是能量累加值，不是 7 个习惯、也不是必须 7 天</Text>}
+          </View>
+        </View>
+
+        <View className='pet-guide'>
+          <Text className='pet-guide-title'>🎯 小目标与里程碑</Text>
+          <View className='pet-guide-list'>
+            <Text className='pet-guide-line'>· 每日第一次打卡：能量 +1（自动投喂）</Text>
+            <Text className='pet-guide-line'>· 新建习惯：能量 +1（新朋友见面礼）</Text>
+            <Text className='pet-guide-line'>· 连续打卡 7 天：进化一次 / 解锁新表情</Text>
+            <Text className='pet-guide-line'>· 累计打卡 30 天：解锁换装</Text>
+            <Text className='pet-guide-line'>· 累计打卡 100 天：稀有形态</Text>
+            <Text className='pet-guide-line'>· 累计打卡 365 天：纪念形态 + 小窝装饰</Text>
+          </View>
         </View>
 
         <View className='pet-actions'>

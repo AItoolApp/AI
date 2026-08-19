@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, Button, Input, Textarea, ScrollView, Label, Image } from '@tarojs/components'
-import { loadData, saveData, loadTheme, saveTheme, removeHabitData, saveIdentity } from '../../utils/storage'
+import { loadData, saveData, loadTheme, saveTheme, removeHabitData, saveIdentity, addHabitBonusEnergy } from '../../utils/storage'
 import { EMOJIS, COLORS, THEMES, WEEKDAYS, Habit, CUSTOM_ICON_KEYS, ICON_MAP } from '../../utils/constants'
 import { getNavBarHeight } from '../../utils/safeArea'
 import HabitIcon from '../../components/HabitIcon'
@@ -83,7 +83,8 @@ export default class ManagePage extends Component<{}, State> {
         restDays: editRestDays,
         checkins: {}
       }]
-      wx.showToast({ title: '已添加 🎉', icon: 'none' })
+      const energy = addHabitBonusEnergy()
+      wx.showToast({ title: `已添加 🎉 新习惯能量+1（当前${energy}点）`, icon: 'none', duration: 2000 })
     }
 
     saveData({ habits: next, theme })

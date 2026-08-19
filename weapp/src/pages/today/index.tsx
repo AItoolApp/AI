@@ -99,7 +99,7 @@ export default class TodayPage extends Component<{}, State> {
     if (!wasChecked) {
       const before = loadEnergy()
       newEnergy = awardEnergyOnceToday()
-      if (newEnergy > before) tip = `⚡ 宠物能量+1，当前 ${newEnergy} 点`
+      if (newEnergy > before) tip = `⚡ 能量+1 已自动投喂，当前 ${newEnergy} 点`
       const streak = getStreak({ ...h, checkins: next })
       if ([7, 30, 100, 200, 365].includes(streak)) {
         tip = `🎉 连击 ${streak} 天！`
@@ -140,7 +140,15 @@ export default class TodayPage extends Component<{}, State> {
           <View className='page-title'>今日打卡</View>
           <View className='header-meta'>
             <View className='tag-badge'>{dateStr}</View>
-            <View className='energy-badge' onClick={() => Taro.navigateTo({ url: '/pages/pet/index' })}>⚡ {energy}</View>
+            <View className='energy-badge' onClick={() => {
+              wx.showModal({
+                title: '⚡ 宠物能量',
+                content: `当前 ${energy} 点能量，已自动投喂给宠物/灵宠蛋。\n\n能量来源：\n· 每新建 1 个习惯 +1\n· 每天第一次打卡 +1\n\n满 7 点可孵化（试运行）。`,
+                confirmText: '去小窝看看',
+                cancelText: '继续打卡',
+                success: (res) => { if (res.confirm) Taro.navigateTo({ url: '/pages/pet/index' }) }
+              })
+            }}>⚡ {energy}</View>
             {habits.length > 0 && (
               <Text className='summary-badge'>✓ {habits.filter(h => h.checkins && h.checkins[currentDate]).length}/{habits.length}</Text>
             )}

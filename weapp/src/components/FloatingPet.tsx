@@ -84,7 +84,7 @@ export default function FloatingPet({ pet, onUpdate, animate = false }: Props) {
   return (
     <View
       className={`floating-pet ${animate ? 'fly-in' : ''}`}
-      style={pos ? `left: ${pos.x}px; top: ${pos.y}px;` : ''}
+      style={pos ? `left: ${pos.x}px; top: ${pos.y}px; right: auto; bottom: auto;` : ''}
     >
       <View className='fp-bubble'>
         <Text>{EXPRESSIONS[expr].text}</Text>

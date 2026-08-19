@@ -52,6 +52,8 @@ export interface Habit {
   emoji: string
   color: string
   checkins: Record<string, boolean>
+  /** 每周休息日（0=周日…6=周六），休息日不打卡也不断连击 */
+  restDays?: number[]
 }
 
 export interface HabitStats {

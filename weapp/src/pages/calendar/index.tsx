@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, ScrollView } from '@tarojs/components'
-import { loadData, loadTheme } from '../../utils/storage'
+import { loadData, loadTheme, saveHabitCheckins } from '../../utils/storage'
 import { getCheckinCounts, getStreak } from '../../utils/stats'
 import { getNavBarHeight } from '../../utils/safeArea'
 import { WEEKDAYS, Habit } from '../../utils/constants'
@@ -14,6 +14,11 @@ interface State {
   checkinMap: Record<string, number>
   habits: Habit[]
   theme: string
+  makeUpDate: string | null
+}
+
+function fmt(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
 }
 
 export default class CalendarPage extends Component<{}, State> {
@@ -22,7 +27,8 @@ export default class CalendarPage extends Component<{}, State> {
     month: new Date().getMonth() + 1,
     checkinMap: {},
     habits: [],
-    theme: 'latte'
+    theme: 'latte',
+    makeUpDate: null
   }
 
   componentDidMount() { Taro.showShareMenu({ withShareTicket: true }); this.refresh() }
@@ -47,10 +53,52 @@ export default class CalendarPage extends Component<{}, State> {
     this.setState({ year, month })
   }
 
-  render() {
-    const { year, month, checkinMap } = this.state
+  canMakeUp(dateStr: string): boolean {
     const today = new Date()
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`
+    today.setHours(0, 0, 0, 0)
+    const dt = new Date(dateStr)
+    dt.setHours(0, 0, 0, 0)
+    const diff = Math.floor((today.getTime() - dt.getTime()) / 86400000)
+    // 允许补签过去 3 天 + 今天（今天用日历打卡也可以）
+    return diff >= 0 && diff <= 3
+  }
+
+  openMakeUp(dateStr: string) {
+    if (!this.canMakeUp(dateStr)) {
+      wx.showToast({ title: '只能补签最近 3 天哦', icon: 'none', duration: 1200 })
+      return
+    }
+    this.setState({ makeUpDate: dateStr })
+  }
+
+  toggleMakeUp(id: number) {
+    const { makeUpDate, habits } = this.state
+    if (!makeUpDate) return
+    const h = habits.find(x => x.id === id)
+    if (!h) return
+
+    const prev = h.checkins || {}
+    const next: Record<string, boolean> = { ...prev }
+    if (prev[makeUpDate]) {
+      delete next[makeUpDate]
+    } else {
+      next[makeUpDate] = true
+    }
+
+    const ok = saveHabitCheckins(id, next)
+    if (!ok) {
+      wx.showToast({ title: '保存失败，请检查存储空间', icon: 'none', duration: 1500 })
+      return
+    }
+
+    const nextHabits = habits.map(x => x.id === id ? { ...x, checkins: next } : x)
+    this.setState({ habits: nextHabits, checkinMap: getCheckinCounts(nextHabits) })
+  }
+
+  render() {
+    const { year, month, checkinMap, makeUpDate } = this.state
+    const today = new Date()
+    const todayStr = fmt(today)
     const dim = new Date(year, month, 0).getDate()
     const fdm = new Date(year, month - 1, 1).getDay()
 
@@ -58,7 +106,13 @@ export default class CalendarPage extends Component<{}, State> {
     for (let i = 0; i < fdm; i++) days.push('blank')
     for (let d = 1; d <= dim; d++) {
       const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`
-      days.push({ day: d, dateStr, isToday: dateStr === todayStr, count: checkinMap[dateStr] || 0 })
+      days.push({
+        day: d,
+        dateStr,
+        isToday: dateStr === todayStr,
+        count: checkinMap[dateStr] || 0,
+        canMakeUp: this.canMakeUp(dateStr)
+      })
     }
 
     return (
@@ -76,9 +130,14 @@ export default class CalendarPage extends Component<{}, State> {
           {days.map((d, i) => {
             if (d === 'blank') return <View key={`b${i}`} className='cal-day other'></View>
             return (
-              <View key={d.dateStr} className={`cal-day ${d.isToday ? 'today' : ''}`}>
+              <View
+                key={d.dateStr}
+                className={`cal-day ${d.isToday ? 'today' : ''} ${d.canMakeUp ? 'can-makeup' : ''}`}
+                onClick={() => this.openMakeUp(d.dateStr)}
+              >
                 <Text>{d.day}</Text>
                 {d.count > 0 && <View className='dot'><Text className='dot-count'>{d.count > 1 ? d.count : ''}</Text></View>}
+                {d.canMakeUp && d.count === 0 && <Text className='makeup-hint'>补</Text>}
               </View>
             )
           })}
@@ -88,13 +147,12 @@ export default class CalendarPage extends Component<{}, State> {
           <View className='cal-detail'>
             {(() => {
               const h = this.state.habits
-              const todayS = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}-${String(new Date().getDate()).padStart(2,'0')}`
+              const todayS = todayStr
               const todayDone = h.filter(x => x.checkins && x.checkins[todayS])
-              const monthDays = Object.keys(this.state.checkinMap)
-                .filter(d => d.startsWith(`${this.state.year}-${String(this.state.month).padStart(2,'0')}`))
-              const monthTotal = monthDays.reduce((a, d) => a + this.state.checkinMap[d], 0)
+              const monthDays = Object.keys(checkinMap)
+                .filter(d => d.startsWith(`${year}-${String(month).padStart(2,'0')}`))
+              const monthTotal = monthDays.reduce((a, d) => a + checkinMap[d], 0)
               const monthCheckDays = monthDays.length
-              // Current total streak (max across all habits)
               const maxStreak = Math.max(...h.map(x => getStreak(x)), 0)
               return (
                 <View>
@@ -126,6 +184,29 @@ export default class CalendarPage extends Component<{}, State> {
                 </View>
               )
             })()}
+          </View>
+        )}
+
+        {/* 补签面板 */}
+        {makeUpDate && (
+          <View className='makeup-overlay' onClick={() => this.setState({ makeUpDate: null })}>
+            <View className='makeup-box' onClick={e => e.stopPropagation()}>
+              <View className='makeup-title'>📅 补签 · {makeUpDate}</View>
+              <View className='makeup-sub'>最近 3 天内可补，给自己一点温柔</View>
+              <ScrollView scrollY className='makeup-list'>
+                {this.state.habits.map(h => {
+                  const checked = !!(h.checkins && h.checkins[makeUpDate])
+                  return (
+                    <View key={h.id} className='makeup-item' onClick={() => this.toggleMakeUp(h.id)}>
+                      <HabitIcon emoji={h.emoji} className='makeup-emoji' imageClassName='makeup-emoji-img' />
+                      <Text className='makeup-name'>{h.name}</Text>
+                      <View className={`makeup-check ${checked ? 'checked' : ''}`}>{checked ? '✓' : ''}</View>
+                    </View>
+                  )
+                })}
+              </ScrollView>
+              <View className='makeup-close' onClick={() => this.setState({ makeUpDate: null })}>关闭</View>
+            </View>
           </View>
         )}
       </View>

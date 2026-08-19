@@ -1,12 +1,33 @@
 import { Habit, HabitStats } from './constants'
 import { todayStr, formatDate } from './storage'
 
+function isRestDay(h: Habit, d: Date): boolean {
+  return !!(h.restDays && h.restDays.includes(d.getDay()))
+}
+
+/** 当前连击：休息日跳过，不计入也不打断 */
+export function getStreak(h: Habit): number {
+  if (!h.checkins) return 0
+  let streak = 0
+  const dd = new Date()
+  while (true) {
+    if (isRestDay(h, dd)) {
+      dd.setDate(dd.getDate() - 1)
+      continue
+    }
+    const ds = formatDate(dd.getFullYear(), dd.getMonth() + 1, dd.getDate())
+    if (h.checkins[ds]) {
+      streak++
+      dd.setDate(dd.getDate() - 1)
+    } else break
+  }
+  return streak
+}
+
 export function calcStats(habits: Habit[]): HabitStats[] {
   return habits.map(h => {
-    let streak = 0
     let longest = 0
     let cur = 0
-    let prev: Date | null = null
     let total = 0
     let monthC = 0
     const now = new Date()
@@ -14,31 +35,32 @@ export function calcStats(habits: Habit[]): HabitStats[] {
     const md = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
     const td = todayStr()
     const ck = !!(h.checkins && h.checkins[td])
+    const streak = getStreak(h)
 
     if (h.checkins) {
       const dates = Object.keys(h.checkins).sort()
       total = dates.length
 
-      // Compute current streak
-      const dd = new Date()
-      while (true) {
-        const ds = formatDate(dd.getFullYear(), dd.getMonth() + 1, dd.getDate())
-        if (h.checkins[ds]) {
-          streak++
-          dd.setDate(dd.getDate() - 1)
-        } else break
+      // 最长连击：按天遍历，休息日不断，未打卡（非休息日）归零
+      if (dates.length > 0) {
+        const min = new Date(dates[0])
+        const max = new Date(dates[dates.length - 1])
+        const cur2 = new Date(min)
+        while (cur2 <= max) {
+          const ds = formatDate(cur2.getFullYear(), cur2.getMonth() + 1, cur2.getDate())
+          if (h.checkins![ds]) {
+            cur++
+            longest = Math.max(longest, cur)
+          } else if (isRestDay(h, cur2)) {
+            // 休息日：不断
+          } else {
+            cur = 0
+          }
+          cur2.setDate(cur2.getDate() + 1)
+        }
       }
 
-      // Compute longest streak and month count
       dates.forEach(ds => {
-        const dt = new Date(ds)
-        if (prev === null || (dt.getTime() - prev.getTime()) / 86400000 === 1) {
-          cur++
-        } else {
-          cur = 1
-        }
-        longest = Math.max(longest, cur)
-        prev = dt
         if (ds >= ms) monthC++
       })
     }
@@ -56,22 +78,6 @@ export function calcStats(habits: Habit[]): HabitStats[] {
       today: ck
     }
   })
-}
-
-
-/** Get current consecutive checkin streak for a single habit */
-export function getStreak(h: Habit): number {
-  if (!h.checkins) return 0
-  let streak = 0
-  const dd = new Date()
-  while (true) {
-    const ds = formatDate(dd.getFullYear(), dd.getMonth() + 1, dd.getDate())
-    if (h.checkins[ds]) {
-      streak++
-      dd.setDate(dd.getDate() - 1)
-    } else break
-  }
-  return streak
 }
 
 export function getCheckinCounts(habits: Habit[]): Record<string, number> {

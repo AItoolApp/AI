@@ -2,7 +2,7 @@ import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, Button, Input, Textarea, ScrollView, Label, Image } from '@tarojs/components'
 import { loadData, saveData, loadTheme, saveTheme, removeHabitData } from '../../utils/storage'
-import { EMOJIS, COLORS, THEMES, Habit, CUSTOM_ICON_KEYS, ICON_MAP } from '../../utils/constants'
+import { EMOJIS, COLORS, THEMES, WEEKDAYS, Habit, CUSTOM_ICON_KEYS, ICON_MAP } from '../../utils/constants'
 import { getNavBarHeight } from '../../utils/safeArea'
 import HabitIcon from '../../components/HabitIcon'
 import './index.scss'
@@ -18,6 +18,7 @@ interface State {
   editName: string
   editEmoji: string
   editColor: string
+  editRestDays: number[]
   theme: string
 }
 
@@ -33,6 +34,7 @@ export default class ManagePage extends Component<{}, State> {
     editName: '',
     editEmoji: EMOJIS[0],
     editColor: COLORS[0],
+    editRestDays: [],
     theme: 'latte'
   }
 
@@ -47,25 +49,26 @@ export default class ManagePage extends Component<{}, State> {
   openAdd() {
     this.setState({
       showModal: true, editingId: null,
-      editName: '', editEmoji: EMOJIS[0], editColor: COLORS[0]
+      editName: '', editEmoji: EMOJIS[0], editColor: COLORS[0], editRestDays: []
     })
   }
 
   openEdit(h: Habit) {
     this.setState({
       showModal: true, editingId: h.id,
-      editName: h.name, editEmoji: h.emoji, editColor: h.color
+      editName: h.name, editEmoji: h.emoji, editColor: h.color,
+      editRestDays: h.restDays || []
     })
   }
 
   saveHabit() {
-    const { editingId, editName, editEmoji, editColor, habits, theme } = this.state
+    const { editingId, editName, editEmoji, editColor, editRestDays, habits, theme } = this.state
     if (!editName.trim()) { wx.showToast({ title: '请输入名称', icon: 'none' }); return }
 
     let next: Habit[]
     if (editingId) {
       // 不可变更新，避免直接 mutate（P0-2 同款修复）
-      next = habits.map(x => x.id === editingId ? { ...x, name: editName, emoji: editEmoji, color: editColor } : x)
+      next = habits.map(x => x.id === editingId ? { ...x, name: editName, emoji: editEmoji, color: editColor, restDays: editRestDays } : x)
       wx.showToast({ title: '已更新', icon: 'none' })
     } else {
       next = [...habits, {
@@ -73,6 +76,7 @@ export default class ManagePage extends Component<{}, State> {
         name: editName,
         emoji: editEmoji,
         color: editColor,
+        restDays: editRestDays,
         checkins: {}
       }]
       wx.showToast({ title: '已添加 🎉', icon: 'none' })
@@ -139,7 +143,7 @@ export default class ManagePage extends Component<{}, State> {
   }
 
   render() {
-    const { habits, showModal, showTheme, editName, editEmoji, editColor, editingId, theme } = this.state
+    const { habits, showModal, showTheme, editName, editEmoji, editColor, editRestDays, editingId, theme } = this.state
 
     return (
       <View className={`app-page theme-${theme}`} style={`padding-top: ${getNavBarHeight()}px;`}>
@@ -255,6 +259,24 @@ export default class ManagePage extends Component<{}, State> {
                       ><Text>{e}</Text></View>
                     ))}
                   </View>
+                </View>
+                <View className='fg'>
+                  <Label className='fg-label'>每周休息日（可选）</Label>
+                  <View className='restday-row'>
+                    {WEEKDAYS.map((w, idx) => (
+                      <View
+                        key={w}
+                        className={`restday-chip ${editRestDays.includes(idx) ? 'on' : ''}`}
+                        onClick={() => {
+                          const next = editRestDays.includes(idx)
+                            ? editRestDays.filter(d => d !== idx)
+                            : [...editRestDays, idx]
+                          this.setState({ editRestDays: next })
+                        }}
+                      >{w}</View>
+                    ))}
+                  </View>
+                  <Text className='restday-tip'>休息日不打卡也不会断连击，允许自己放松一下</Text>
                 </View>
                 <View className='fg'>
                   <Label className='fg-label'>主题色</Label>

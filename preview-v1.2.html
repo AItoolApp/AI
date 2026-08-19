@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>习惯打卡 v1.2 预览</title>
+<style>
+  :root {
+    --bg:#faf6f0; --card:rgba(255,255,250,.92); --border:rgba(180,140,100,.12);
+    --txt:#2c1f14; --txt2:#7a6348; --txt3:#b09878;
+    --acc:#c87a3a; --acc2:#e8a86a; --acc-light:#f5ede0; --acc-txt:#8a5a2a;
+    --ok:#4a8a4a; --ok-light:#e4f0e0;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    background:var(--bg);
+    color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+    max-width:420px; margin:0 auto; min-height:100vh;
+    padding:48px 16px 120px;
+  }
+  .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .title { font-size:34px; font-weight:800; }
+  .badge { font-size:20px; color:var(--acc-txt); background:var(--acc-light); padding:6px 14px; border-radius:12px; }
+  .summary { font-size:22px; color:var(--acc-txt); }
+
+  .kcard {
+    background:var(--card); border:1px solid var(--border); border-radius:20px;
+    padding:18px; margin-bottom:14px; box-shadow:0 1px 3px rgba(60,40,20,.06), 0 4px 12px rgba(60,40,20,.05);
+    position:relative; overflow:hidden;
+  }
+  .kcard::after { content:''; position:absolute; top:-20px; right:-20px; width:90px; height:90px; border-radius:50%; background:radial-gradient(circle,var(--acc-light),transparent 70%); }
+  .ktop { display:flex; justify-content:space-between; align-items:center; }
+  .kbadge { font-size:20px; font-weight:600; color:var(--acc-txt); }
+  .kmore { font-size:20px; color:var(--txt3); }
+  .ktitle { font-size:30px; font-weight:700; margin:10px 0 6px; }
+  .ktext { font-size:25px; color:var(--txt); line-height:1.6; }
+  .ksource { font-size:20px; color:var(--txt3); text-align:right; margin-top:6px; }
+  .kbtn { display:inline-block; background:var(--acc); color:#fff; font-size:22px; border-radius:12px; padding:10px 20px; margin-top:10px; }
+  .ktip { font-size:20px; color:var(--acc-txt); margin-top:10px; }
+
+  .habit { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; box-shadow:0 1px 3px rgba(60,40,20,.06); }
+  .hemoji { font-size:34px; }
+  .hinfo { flex:1; }
+  .hname { font-size:28px; font-weight:600; }
+  .hmeta { font-size:20px; color:var(--txt2); margin-top:4px; }
+  .streak { display:inline-block; font-size:20px; font-weight:600; color:var(--acc); margin-left:10px; padding:2px 10px; background:var(--acc-light); border-radius:10px; }
+  .check { width:48px; height:48px; border-radius:50%; border:2px solid var(--acc); display:flex; align-items:center; justify-content:center; font-size:28px; color:#fff; }
+  .check.on { background:var(--acc); }
+
+  .identity { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; }
+  .ibox { width:84%; background:var(--card); border-radius:28px; padding:32px 24px 24px; }
+  .ititle { font-size:34px; font-weight:700; text-align:center; }
+  .isub { font-size:22px; color:var(--txt3); text-align:center; margin:8px 0 20px; }
+  .iitem { display:flex; align-items:center; gap:16px; padding:16px; border-radius:18px; background:var(--acc-light); margin-bottom:12px; }
+  .iemoji { font-size:44px; }
+  .iname { font-size:28px; font-weight:700; }
+  .idesc { font-size:20px; color:var(--txt2); }
+  .iskip { margin-top:16px; text-align:center; color:var(--txt3); font-size:22px; }
+  .note { margin-top:24px; padding:16px; background:var(--ok-light); border-radius:16px; font-size:20px; color:var(--txt2); line-height:1.6; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">今日打卡</div>
+    <div class="badge">8月19日 周三</div>
+  </div>
+  <div class="summary">✓ 1/3</div>
+
+  <div class="kcard">
+    <div class="ktop">
+      <div class="kbadge">💡 方法卡 · 学习成长推荐</div>
+      <div class="kmore">轻点收起</div>
+    </div>
+    <div class="ktitle">学习方法</div>
+    <div class="ktext">费曼学习法：把你刚学的内容讲给一个完全不懂的人听，讲不明白的地方就是你的知识漏洞。</div>
+    <div class="ksource">—— 费曼学习法</div>
+    <div class="ktip">💪 完成打卡后，明天还会有新卡片</div>
+  </div>
+
+  <div class="habit">
+    <div class="hemoji">📖</div>
+    <div class="hinfo">
+      <div class="hname">背单词 30 个</div>
+      <div class="hmeta">✓ 已完成 <span class="streak">🔥 3天</span></div>
+    </div>
+    <div class="check on">✓</div>
+  </div>
+  <div class="habit">
+    <div class="hemoji">🏃</div>
+    <div class="hinfo">
+      <div class="hname">运动 20 分钟</div>
+      <div class="hmeta">⏳ 待完成 <span class="streak">🔥 1天</span></div>
+    </div>
+    <div class="check"></div>
+  </div>
+  <div class="habit">
+    <div class="hemoji">😴</div>
+    <div class="hinfo">
+      <div class="hname">早睡 23:30</div>
+      <div class="hmeta">⏳ 待完成 <span class="streak">🔥 5天</span></div>
+    </div>
+    <div class="check"></div>
+  </div>
+
+  <div class="note">
+    <b>v1.2 第 1 轮新增：</b><br>
+    ① 今日知识卡片（语录/方法/视频链接）<br>
+    ② 首次进入身份选择（考研/学习/认知/生活）<br>
+    ③ 日历补签最近 3 天<br>
+    ④ 每个习惯可设每周休息日，休息日不断连击
+  </div>
+
+  <div class="identity">
+    <div class="ibox">
+      <div class="ititle">🎯 你更想提升哪方面？</div>
+      <div class="isub">选一个身份，我会推荐更合适的内容卡片</div>
+      <div class="iitem"><div class="iemoji">📚</div><div><div class="iname">考研备考</div><div class="idesc">每天学习打卡，稳稳上岸</div></div></div>
+      <div class="iitem"><div class="iemoji">🌱</div><div><div class="iname">学习成长</div><div class="idesc">学点东西，持续进步</div></div></div>
+      <div class="iitem"><div class="iemoji">🧠</div><div><div class="iname">认知提升</div><div class="idesc">思维升级，效率翻倍</div></div></div>
+      <div class="iitem"><div class="iemoji">🍵</div><div><div class="iname">生活方式</div><div class="idesc">高质量生活，爱自己</div></div></div>
+      <div class="iskip">先随便看看</div>
+    </div>
+  </div>
+</body>
+</html>

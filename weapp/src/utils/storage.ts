@@ -15,6 +15,8 @@ interface StoredHabit {
   name: string
   emoji: string
   color: string
+  /** 每周休息日（0=周日…6=周六），v1.2 起可设置 */
+  restDays?: number[]
   /** v1 旧数据可能内联 checkins；迁移后不再写入 */
   checkins?: Record<string, boolean>
 }
@@ -93,7 +95,7 @@ function migrateIfNeeded(data: StoredData): StoredData {
       }
     }
     // 元信息里不再保留 checkins
-    return { id: h.id, name: h.name, emoji: h.emoji, color: h.color }
+    return { id: h.id, name: h.name, emoji: h.emoji, color: h.color, restDays: h.restDays || [] }
   })
 
   const next: StoredData = { ...data, schemaVersion: DATA_VERSION, habits }
@@ -108,6 +110,7 @@ export function loadData(): AppData {
   const migrated = migrateIfNeeded(meta)
   const habits: Habit[] = (migrated.habits || []).map(h => ({
     ...h,
+    restDays: h.restDays || [],
     checkins: readCheckins(h.id)
   }))
   return { habits, theme: migrated.theme || DEFAULT_THEME, schemaVersion: DATA_VERSION }
@@ -124,7 +127,7 @@ export function saveData(data: AppData): boolean {
   const meta: StoredData = {
     schemaVersion: DATA_VERSION,
     theme: data.theme || DEFAULT_THEME,
-    habits: (data.habits || []).map(h => ({ id: h.id, name: h.name, emoji: h.emoji, color: h.color }))
+    habits: (data.habits || []).map(h => ({ id: h.id, name: h.name, emoji: h.emoji, color: h.color, restDays: h.restDays || [] }))
   }
   if (!writeMeta(meta)) ok = false
   return ok
@@ -184,3 +187,26 @@ export function firstDayOfMonth(year: number, month: number): number {
   return new Date(year, month - 1, 1).getDay()
 }
 /* End of File */
+
+/* ─── 用户身份（v1.2 第 1 轮）─── */
+
+const IDENTITY_KEY = 'habit_identity'
+
+export function loadIdentity(): string {
+  try {
+    return Taro.getStorageSync(IDENTITY_KEY) || ''
+  } catch (e) {
+    console.error('loadIdentity error:', e)
+    return ''
+  }
+}
+
+export function saveIdentity(key: string): boolean {
+  try {
+    Taro.setStorageSync(IDENTITY_KEY, key)
+    return true
+  } catch (e) {
+    console.error('saveIdentity error:', e)
+    return false
+  }
+}

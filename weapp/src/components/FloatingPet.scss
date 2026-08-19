@@ -7,6 +7,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  pointer-events: none;  /* 容器不挡点击，只有宠物本体和小房子可交互 */
 }
 .floating-pet.fly-in {
   animation: fpFlyIn .9s cubic-bezier(.3,1.4,.5,1);
@@ -27,6 +28,7 @@
   white-space: nowrap;
 }
 .fp-body {
+  pointer-events: auto;
   width: 88px;
   height: 88px;
   border-radius: 50%;
@@ -41,6 +43,7 @@
   font-size: 52px;
 }
 .fp-sleep {
+  pointer-events: auto;
   width: 44px;
   height: 44px;
   border-radius: 50%;

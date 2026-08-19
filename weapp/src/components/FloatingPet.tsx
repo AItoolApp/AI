@@ -1,12 +1,14 @@
 import { useState, useRef } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
-import { PetData, savePet, PET_TYPES } from '../utils/pet'
+import { PetData, savePet, PET_TYPES, loadPetPos, savePetPos } from '../utils/pet'
 import './FloatingPet.scss'
 
 interface Props {
   pet: PetData | null
   onUpdate: () => void
+  /** 只在刚召唤时传 true，播放飞入动画；页面切换时传 false 避免重复动画 */
+  animate?: boolean
 }
 
 const EXPRESSIONS = [
@@ -15,9 +17,11 @@ const EXPRESSIONS = [
   { emoji: '💤', text: '有点困了…' }
 ]
 
-export default function FloatingPet({ pet, onUpdate }: Props) {
+export default function FloatingPet({ pet, onUpdate, animate = false }: Props) {
   const [expr, setExpr] = useState(0)
-  const [pos, setPos] = useState<{ x: number; y: number } | null>(null)
+  const savedPos = loadPetPos()
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(savedPos)
+  const posRef = useRef(pos)
   const offRef = useRef({ x: 0, y: 0 })
   const draggingRef = useRef(false)
 
@@ -38,10 +42,10 @@ export default function FloatingPet({ pet, onUpdate }: Props) {
 
   const onTouchStart = (e: any) => {
     const t = e.touches[0]
-    // 第一次拖动时从默认右下角位置切换为 left/top 坐标
-    let x = pos ? pos.x : Taro.getWindowInfo().windowWidth - 116
-    let y = pos ? pos.y : Taro.getWindowInfo().windowHeight - 320
+    let x = posRef.current ? posRef.current.x : Taro.getWindowInfo().windowWidth - 116
+    let y = posRef.current ? posRef.current.y : Taro.getWindowInfo().windowHeight - 320
     setPos({ x, y })
+    posRef.current = { x, y }
     offRef.current = { x: t.clientX - x, y: t.clientY - y }
     draggingRef.current = true
   }
@@ -53,16 +57,18 @@ export default function FloatingPet({ pet, onUpdate }: Props) {
     const x = Math.min(Math.max(0, t.clientX - offRef.current.x), win.windowWidth - 96)
     const y = Math.min(Math.max(0, t.clientY - offRef.current.y), win.windowHeight - 180)
     setPos({ x, y })
+    posRef.current = { x, y }
     e.stopPropagation && e.stopPropagation()
   }
 
   const onTouchEnd = () => {
     draggingRef.current = false
+    if (posRef.current) savePetPos(posRef.current)
   }
 
   return (
     <View
-      className='floating-pet fly-in'
+      className={`floating-pet ${animate ? 'fly-in' : ''}`}
       style={pos ? `left: ${pos.x}px; top: ${pos.y}px;` : ''}
     >
       <View className='fp-bubble'>

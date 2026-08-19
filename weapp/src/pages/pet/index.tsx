@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import Taro from '@tarojs/taro'
 import { View, Text, Button, Input } from '@tarojs/components'
-import { loadEnergy, spendEnergy } from '../../utils/storage'
+import { loadEnergy, spendEnergy, loadIdentity } from '../../utils/storage'
 import { loadPet, savePet, defaultEgg, randomHatch, HATCH_ENERGY, PET_TYPES, PRESET_GOALS, loadGoals, saveGoals, loadCustomGoals, saveCustomGoals } from '../../utils/pet'
 import { loadTheme } from '../../utils/storage'
 import { getNavBarHeight } from '../../utils/safeArea'
@@ -18,6 +18,8 @@ interface State {
   customGoals: string[]
   customGoalInput: string
   summonFx: boolean
+  identity: string
+  showAllGoals: boolean
 }
 
 export default class PetPage extends Component<{}, State> {
@@ -30,7 +32,9 @@ export default class PetPage extends Component<{}, State> {
     goals: [],
     customGoals: [],
     customGoalInput: '',
-    summonFx: false
+    summonFx: false,
+    identity: '',
+    showAllGoals: false
   }
 
   componentDidMount() { this.refresh() }
@@ -42,7 +46,8 @@ export default class PetPage extends Component<{}, State> {
       energy: loadEnergy(),
       theme: loadTheme(),
       goals: loadGoals(),
-      customGoals: loadCustomGoals()
+      customGoals: loadCustomGoals(),
+      identity: loadIdentity()
     })
   }
 
@@ -204,7 +209,7 @@ export default class PetPage extends Component<{}, State> {
           </View>
         )}
 
-        <FloatingPet pet={this.state.pet} onUpdate={() => this.refresh()} />
+        <FloatingPet pet={this.state.pet} onUpdate={() => this.refresh()} animate />
 
         <View className='pet-actions'>
           <Button className='pet-btn' onClick={() => this.feed()}>🫳 投喂能量</Button>
@@ -225,8 +230,26 @@ export default class PetPage extends Component<{}, State> {
         {/* 学习小目标 */}
         <View className='pet-guide'>
           <Text className='pet-guide-title'>🎯 小目标 & 里程碑（可多选）</Text>
-          <Text className='pet-guide-text'>按分类选择你想挑战的小目标，后续会显示完成进度。</Text>
-          {['英语学习', '考研备考', '认知提升', '生活方式'].map(cat => (
+          <Text className='pet-guide-text'>根据你的身份展示对应示例，也可以展开全部。</Text>
+          <View className='goal-toggle' onClick={() => this.setState({ showAllGoals: !this.state.showAllGoals })}>
+            {this.state.showAllGoals ? '收起，只看我身份相关的' : '展开全部分类'}
+          </View>
+          {(() => {
+            const idtCats: Record<string, string[]> = {
+              english: ['英语学习'],
+              kaoyan: ['考研备考'],
+              study: ['英语学习', '认知提升'],
+              cognition: ['认知提升'],
+              life: ['生活方式']
+            }
+            const keys = this.state.identity.split(',').filter(Boolean)
+            let showCats = ['英语学习', '考研备考', '认知提升', '生活方式']
+            if (!this.state.showAllGoals && keys.length > 0) {
+              const matched: string[] = []
+              keys.forEach(k => { (idtCats[k] || []).forEach(c => { if (!matched.includes(c)) matched.push(c) }) })
+              if (matched.length > 0) showCats = matched
+            }
+            return showCats.map(cat => (
             <View key={cat} className='goal-group'>
               <Text className='goal-cat'>{cat}</Text>
               <View className='goal-list'>
@@ -242,7 +265,8 @@ export default class PetPage extends Component<{}, State> {
                 })}
               </View>
             </View>
-          ))}
+            ))
+          })()}
           <View className='goal-custom'>
             <Text className='goal-cat'>自定义小目标</Text>
             <View className='goal-custom-row'>

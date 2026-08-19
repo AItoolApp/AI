@@ -342,3 +342,14 @@
   color: var(--txt2);
   margin-top: 6px;
 }
+
+.goal-toggle {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--acc-light);
+  color: var(--acc-txt);
+  font-size: 20px;
+  font-weight: 700;
+}

@@ -11,11 +11,15 @@ export const PET_TYPES = [
 export const HATCH_ENERGY = 7
 
 export interface PetData {
+  schemaVersion?: number
   type: string
   stage: 'egg' | 'baby' | 'adult'
   sleeping: boolean
   hatchedAt?: string
 }
+
+/** 宠物数据版本，做版本隔离：后续字段变更只升版本不破坏旧数据 */
+export const PET_DATA_VERSION = 2
 
 const PET_KEY = 'habit_pet'
 
@@ -40,17 +44,41 @@ export function savePet(pet: PetData): boolean {
 }
 
 export function defaultEgg(): PetData {
-  return { type: 'egg', stage: 'egg', sleeping: true }
+  return { schemaVersion: PET_DATA_VERSION, type: 'egg', stage: 'egg', sleeping: true }
 }
 
 export function randomHatch(): PetData {
   const idx = Math.floor(Math.random() * PET_TYPES.length)
   const t = PET_TYPES[idx]
   return {
+    schemaVersion: PET_DATA_VERSION,
     type: t.key,
     stage: 'baby',
     sleeping: true,
     hatchedAt: new Date().toISOString()
+  }
+}
+
+/* ─── 悬浮宠物位置持久化（跨页面跟随）─── */
+
+const PET_POS_KEY = 'habit_pet_pos'
+
+export function loadPetPos(): { x: number; y: number } | null {
+  try {
+    const raw = Taro.getStorageSync(PET_POS_KEY)
+    if (!raw) return null
+    const d = JSON.parse(raw)
+    return typeof d.x === 'number' && typeof d.y === 'number' ? d : null
+  } catch (e) {
+    return null
+  }
+}
+
+export function savePetPos(pos: { x: number; y: number }) {
+  try {
+    Taro.setStorageSync(PET_POS_KEY, JSON.stringify(pos))
+  } catch (e) {
+    console.error('savePetPos error:', e)
   }
 }
 
